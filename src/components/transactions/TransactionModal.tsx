@@ -190,32 +190,32 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
           {/* Type Toggle */}
           <div>
-            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
               Transaction Type
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => handleTypeChange('income')}
-                className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl border text-xs sm:text-sm font-bold transition cursor-pointer ${
+                className={`flex items-center justify-center gap-2 py-2 px-4 rounded-xl border text-xs sm:text-sm font-semibold transition cursor-pointer ${
                   isIncome
-                    ? 'bg-[#16A34A] text-white border-[#16A34A] shadow-md shadow-emerald-950/20'
+                    ? 'bg-[#238B6F] text-white border-[#238B6F] shadow-xs'
                     : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                <ArrowDownLeft size={17} />
+                <ArrowDownLeft size={16} />
                 Income (+)
               </button>
               <button
                 type="button"
                 onClick={() => handleTypeChange('expense')}
-                className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl border text-xs sm:text-sm font-bold transition cursor-pointer ${
+                className={`flex items-center justify-center gap-2 py-2 px-4 rounded-xl border text-xs sm:text-sm font-semibold transition cursor-pointer ${
                   !isIncome
-                    ? 'bg-[#DC2626] text-white border-[#DC2626] shadow-md shadow-rose-950/20'
+                    ? 'bg-[#D95763] text-white border-[#D95763] shadow-xs'
                     : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                 }`}
               >
-                <ArrowUpRight size={17} />
+                <ArrowUpRight size={16} />
                 Expense (-)
               </button>
             </div>
@@ -223,10 +223,10 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
           {/* Amount Field */}
           <div>
-            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
               Amount
             </label>
-            <div className="relative rounded-2xl shadow-sm">
+            <div className="relative rounded-xl">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-bold text-base">
                 ₹
               </div>
@@ -238,16 +238,16 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 placeholder="0.00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className={`w-full pl-9 pr-4 py-2.5 bg-slate-50 border rounded-2xl font-bold text-slate-900 text-base focus:outline-none focus:ring-2 focus:bg-white transition ${
+                className={`w-full pl-9 pr-4 py-2 bg-slate-50 border rounded-xl font-bold text-slate-900 text-sm focus:outline-none focus:ring-1 focus:bg-white transition ${
                   isIncome
-                    ? 'focus:border-emerald-500 focus:ring-emerald-200 border-slate-200'
-                    : 'focus:border-rose-500 focus:ring-rose-200 border-slate-200'
+                    ? 'focus:border-[#238B6F] focus:ring-[#238B6F]/20 border-slate-200'
+                    : 'focus:border-[#D95763] focus:ring-[#D95763]/20 border-slate-200'
                 }`}
               />
             </div>
             {amount && !isNaN(parseFloat(amount)) && (
               <p className="text-xs text-slate-500 mt-1 pl-1">
-                Formatted: <span className="font-bold text-slate-700">{formatINR(parseFloat(amount))}</span>
+                Formatted: <span className="font-semibold text-slate-700">{formatINR(parseFloat(amount))}</span>
               </p>
             )}
           </div>
@@ -256,20 +256,20 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Fluid Dropdown Category */}
             <div className="relative z-20">
-              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                 <Tag size={13} className="text-slate-400" />
                 Category 
               </label>
               <FluidDropdown
                 categories={currentCategoryItems}
                 selectedId={category}
-                onSelect={(cat) => setCategory(cat.id)}
+                onSelect={(cat) => setCategory(cat.id as any)}
               />
             </div>
 
-            {/* Date */}
-            <div>
-              <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+            {/* Date Field */}
+            <div className="relative z-10">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                 <Calendar size={13} className="text-slate-400" />
                 Date 
               </label>
@@ -282,7 +282,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
               <FileText size={13} className="text-slate-400" />
               Description 
             </label>
@@ -296,7 +296,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   ? 'e.g. Sunday Worship Offering, Building Fund Donation...'
                   : 'e.g. Sound system cable repair, Fellowship supplies...'
               }
-              className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20 focus:border-[#0F766E] focus:bg-white transition resize-none"
+              className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#18212F]/20 focus:border-[#18212F] focus:bg-white transition resize-none"
             />
           </div>
 
@@ -305,20 +305,20 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-2xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+              className="px-3.5 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-white shadow-md transition disabled:opacity-50 cursor-pointer ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium text-white shadow-xs transition disabled:opacity-50 cursor-pointer ${
                 isIncome
-                  ? 'bg-[#16A34A] hover:bg-[#15803d] shadow-emerald-950/20'
-                  : 'bg-[#DC2626] hover:bg-[#b91c1c] shadow-rose-950/20'
+                  ? 'bg-[#238B6F] hover:bg-[#1e785f]'
+                  : 'bg-[#D95763] hover:bg-[#c44955]'
               }`}
             >
-              <CheckCircle2 size={16} />
+              <CheckCircle2 size={14} />
               {isSubmitting
                 ? 'Saving...'
                 : editingTransaction

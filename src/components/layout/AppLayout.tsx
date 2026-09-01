@@ -39,17 +39,17 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAF8]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-[#0F766E] border-t-transparent animate-spin" />
-          <span className="text-xs text-slate-500 font-medium font-mono">Authenticating...</span>
+          <div className="w-8 h-8 rounded-full border-2 border-[#18212F] border-t-transparent animate-spin" />
+          <span className="text-xs text-[#737373] font-medium">Authenticating...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
+    <div className="min-h-screen flex flex-col bg-[#FAFAF8]">
       {/* Unified Top Navigation Header */}
       <Header
         onAddIncome={handleOpenAddIncome}
