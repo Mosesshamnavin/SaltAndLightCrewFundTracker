@@ -70,8 +70,6 @@ type Geometry = {
   h: number;
 };
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 // The library, loaded once per page.
 let libPromise: Promise<any> | null = null;
 

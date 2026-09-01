@@ -103,6 +103,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     }
     prevOpenRef.current = isOpen;
     prevIdRef.current = editingTransaction?.id;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, editingTransaction?.id, initialType]);
 
   // When type changes, set sensible default category
