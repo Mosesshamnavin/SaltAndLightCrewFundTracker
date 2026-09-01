@@ -52,9 +52,13 @@ export async function loginWithGoogle(): Promise<UserProfile> {
 
 export async function loginWithFirebase(email: string, password: string): Promise<UserProfile> {
   const normalizedEmail = email.trim().toLowerCase();
-  
-  // Custom demo credentials check
-  if (normalizedEmail === 'user@2026' || normalizedEmail === 'user@2026.com') {
+  const trimmedPassword = password.trim();
+
+  // 1. Strict demo credentials check
+  if (normalizedEmail === 'user' || normalizedEmail === 'user@2026.com') {
+    if (trimmedPassword !== 'user@123') {
+      throw new Error('Incorrect password for user@2026.');
+    }
     return {
       id: 'demo-user-2026',
       name: 'Youth Member',
@@ -65,7 +69,10 @@ export async function loginWithFirebase(email: string, password: string): Promis
     };
   }
 
-  if (normalizedEmail === 'admin' || normalizedEmail === 'admin@slc.in') {
+  if (normalizedEmail === 'admin@slc.in' || normalizedEmail === 'admin@saltandlight.in') {
+    if (trimmedPassword !== 'admin@123' && trimmedPassword !== 'admin2026') {
+      throw new Error('Incorrect password for Admin account.');
+    }
     return {
       id: 'demo-admin-1',
       name: 'Moses Sham Navin',
@@ -76,6 +83,7 @@ export async function loginWithFirebase(email: string, password: string): Promis
     };
   }
 
+  // 2. Firebase Authentication check
   if (isFirebaseConfigured && auth && db) {
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
@@ -85,7 +93,7 @@ export async function loginWithFirebase(email: string, password: string): Promis
         return userDoc.data() as UserProfile;
       }
 
-      const isAdminEmail = ADMIN_EMAILS.includes(email.toLowerCase());
+      const isAdminEmail = ADMIN_EMAILS.includes(normalizedEmail);
       const newProfile: UserProfile = {
         id: cred.user.uid,
         name: cred.user.displayName || email.split('@')[0],
@@ -96,26 +104,25 @@ export async function loginWithFirebase(email: string, password: string): Promis
       };
       await setDoc(doc(db, 'users', cred.user.uid), newProfile);
       return newProfile;
-    } catch (e) {
-      console.warn('Firebase login attempt fallback to local auth:', e);
+    } catch (e: any) {
+      const code = e?.code;
+      if (
+        code === 'auth/invalid-credential' ||
+        code === 'auth/wrong-password' ||
+        code === 'auth/user-not-found'
+      ) {
+        throw new Error('Invalid email or password.');
+      } else if (code === 'auth/too-many-requests') {
+        throw new Error('Too many failed attempts. Please try again later.');
+      } else if (code === 'auth/invalid-email') {
+        throw new Error('Please enter a valid email format.');
+      }
+      throw new Error(e?.message || 'Login failed. Invalid credentials.');
     }
   }
 
-  // Local matching fallback
-  const found = INITIAL_USERS.find((u) => u.email.toLowerCase() === normalizedEmail);
-  if (found) {
-    return found;
-  }
-
-  const isAdminEmail = ADMIN_EMAILS.includes(normalizedEmail);
-  return {
-    id: 'user-' + Date.now(),
-    name: email.split('@')[0],
-    email,
-    role: isAdminEmail ? 'admin' : 'user',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+  // 3. Fallback: Reject any unknown credentials
+  throw new Error('Invalid email or password. Please use valid credentials.');
 }
 
 export async function registerWithFirebase(
