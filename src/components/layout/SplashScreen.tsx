@@ -41,14 +41,14 @@ export const SplashScreen: React.FC = () => {
                 A Salt And Light Crew Production
               </p>
 
-              <div className="mt-4 flex items-center justify-center">
+              <div className="mt-2.5 flex items-center justify-center">
                 <HandwritingText
                   text="Co-presented by Sham Souza"
                   fontUrl="/fonts/Caveat.ttf"
-                  className="text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.3)]"
-                  height="34px"
-                  duration={1.8}
-                  strokeWidth={1.5}
+                  className="text-emerald-400/90 drop-shadow-[0_0_12px_rgba(52,211,153,0.25)]"
+                  height="22px"
+                  duration={1.6}
+                  strokeWidth={1.2}
                 />
               </div>
             </motion.div>
