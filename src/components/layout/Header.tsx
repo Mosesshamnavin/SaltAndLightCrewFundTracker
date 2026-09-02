@@ -65,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-[#0D1522] flex items-center justify-center transition-opacity group-hover:opacity-90">
               <Image
                 src="/logo.png"
-                alt="Salt & Light Logo"
+                alt="Salt and Light Logo"
                 width={32}
                 height={32}
                 priority
@@ -74,7 +74,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div className="flex flex-col text-left">
               <span className="text-[14px] font-bold text-[#1C1C1E] tracking-tight leading-none">
-                Salt & Light Crew
+                Salt and Light Crew
               </span>
               <span className="text-[11px] font-normal text-[#737373] tracking-normal mt-1 leading-none">
                 Fund Tracker

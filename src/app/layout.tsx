@@ -21,7 +21,7 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  title: 'Salt & Light - Church Income & Expense Management',
+  title: 'Salt and Light - Church Income & Expense Management',
   description: 'A simple, transparent, cloud-based financial ledger for church income and expenses in Indian Currency (INR ₹).',
   icons: {
     icon: '/logo.png',

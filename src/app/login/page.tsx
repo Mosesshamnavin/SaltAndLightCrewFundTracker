@@ -43,7 +43,7 @@ export default function LoginPage() {
     try {
       await login(email, password);
       toast.success('Welcome back!', {
-        description: 'Successfully signed in to Salt & Light Fund Tracker.',
+        description: 'Successfully signed in to Salt and Light Fund Tracker.',
       });
       router.push('/');
     } catch (err: any) {
@@ -95,7 +95,7 @@ export default function LoginPage() {
           <div className="w-12 h-12 rounded-2xl bg-[#141C28] border border-white/15 p-1 shadow-md shadow-black/40 overflow-hidden mb-3.5">
             <Image
               src="/logo.png"
-              alt="Salt & Light Logo"
+              alt="Salt and Light Logo"
               width={48}
               height={48}
               priority
@@ -104,7 +104,7 @@ export default function LoginPage() {
           </div>
 
           <h1 className="text-xl sm:text-2xl font-bold text-[#F7F7F5] tracking-tight">
-            Salt & Light Fund Tracker
+            Salt and Light Fund Tracker
           </h1>
           <p className="text-xs text-[#9DA2AD] mt-1 font-medium">
             Church Financial Management
