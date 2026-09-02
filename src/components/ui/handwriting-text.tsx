@@ -34,10 +34,10 @@ import { useEffect, useRef, useState } from "react";
  * Colour comes from `currentColor`, so `className="text-emerald-600"` styles it.
  */
 
+const OPENTYPE_LOCAL = "/js/opentype.min.js";
 const OPENTYPE_CDN = "https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js";
 
-const DEFAULT_FONT_URL =
-  "https://raw.githubusercontent.com/google/fonts/main/ofl/shadowsintolight/ShadowsIntoLight.ttf";
+const DEFAULT_FONT_URL = "/fonts/Caveat.ttf";
 
 export interface HandwritingTextProps {
   /** A single phrase to write. Ignored when `words` is given. */
@@ -80,14 +80,26 @@ function loadOpentype(): Promise<any> {
   if (!libPromise) {
     libPromise = new Promise((resolve, reject) => {
       const script = document.createElement("script");
-      script.src = OPENTYPE_CDN;
+      script.src = OPENTYPE_LOCAL;
       script.async = true;
       script.onload = () => {
         const lib = (window as any).opentype;
         if (lib) resolve(lib);
         else reject(new Error("opentype.js loaded but exposed nothing"));
       };
-      script.onerror = () => reject(new Error("opentype.js failed to load"));
+      script.onerror = () => {
+        // Fallback to CDN if local script fails
+        const fallbackScript = document.createElement("script");
+        fallbackScript.src = OPENTYPE_CDN;
+        fallbackScript.async = true;
+        fallbackScript.onload = () => {
+          const lib = (window as any).opentype;
+          if (lib) resolve(lib);
+          else reject(new Error("CDN opentype.js loaded but exposed nothing"));
+        };
+        fallbackScript.onerror = () => reject(new Error("opentype.js failed to load"));
+        document.head.appendChild(fallbackScript);
+      };
       document.head.appendChild(script);
     });
   }
@@ -184,9 +196,22 @@ export function HandwritingText({
     return () => cancelAnimationFrame(id);
   }, [geom]);
 
-  // Before the font resolves — and if it never does — the text is still readable.
+  // Before the font resolves — and if it never does — the text is still readable in cursive.
   if (!geom) {
-    return <span className={className}>{current}</span>;
+    return (
+      <span
+        className={className}
+        style={{
+          fontFamily: "var(--font-caveat), 'Caveat', 'Shadows Into Light', cursive, sans-serif",
+          fontSize: "24px",
+          fontWeight: 400,
+          letterSpacing: "0.02em",
+          display: "inline-block",
+        }}
+      >
+        {current}
+      </span>
+    );
   }
 
   const count = Math.max(1, geom.contours.length);

@@ -4,16 +4,16 @@
 
 :root {
   --foreground-rgb: 28, 28, 30; /* #1C1C1E */
-  --background: #FAFAF8;
+  --background: #F9F9F6;
   --income-emerald: #238B6F;
   --expense-coral: #D95763;
-  --primary-dark: #18212F;
-  --border-subtle: #EAEAEA;
+  --primary-dark: #0D1522;
+  --border-subtle: #ECE9E2;
 }
 
 body {
   color: #1C1C1E;
-  background-color: #FAFAF8;
+  background-color: #F9F9F6;
   font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
@@ -54,4 +54,54 @@ table td {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Cinematic Slow Zoom Motion (Ken Burns Effect) */
+@keyframes slowZoom {
+  0% {
+    transform: scale(1.0) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.08) translate(-1%, -1%);
+  }
+  100% {
+    transform: scale(1.0) translate(0, 0);
+  }
+}
+
+.animate-slow-zoom {
+  animation: slowZoom 24s ease-in-out infinite;
+  will-change: transform;
+  transform-origin: center center;
+}
+
+/* Smooth Page Transitions */
+@keyframes pageFadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pageFadeSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-enter {
+  animation: pageFadeSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-page-enter-down {
+  animation: pageFadeSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

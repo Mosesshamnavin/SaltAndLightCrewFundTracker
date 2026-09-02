@@ -25,32 +25,33 @@ export const SplashScreen: React.FC = () => {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#09090b] text-white select-none px-6"
         >
-          <div className="flex min-h-[360px] w-full max-w-3xl flex-col items-center justify-center text-center gap-6">
-            {/* Clean Bold Hero Typography */}
-            <motion.h1
+          <div className="flex min-h-[360px] w-full max-w-3xl flex-col items-center justify-center text-center gap-2">
+            <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: 'easeOut' }}
-              className="text-center text-4xl font-black leading-tight tracking-tight sm:text-5xl md:text-6xl"
+              className="text-center"
             >
               {/* Dark Teal Heading */}
-              <span className="bg-gradient-to-r from-teal-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(15,118,110,0.6)]">
+              <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl md:text-6xl bg-gradient-to-r from-teal-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(15,118,110,0.6)]">
                 Fund Tracker
-              </span>
-              <br />
-              <span className="text-zinc-400 font-bold text-2xl sm:text-3xl md:text-4xl block mt-1.5">
+              </h1>
+
+              <p className="text-zinc-400 font-bold text-xl sm:text-2xl md:text-3xl mt-2 tracking-tight">
                 A Salt And Light Crew Production
-              </span>
+              </p>
+
               <div className="mt-4 flex items-center justify-center">
                 <HandwritingText
                   text="Co-presented by Sham Souza"
-                  className="text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.3)] font-normal"
+                  fontUrl="/fonts/Caveat.ttf"
+                  className="text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.3)]"
                   height="34px"
                   duration={1.8}
                   strokeWidth={1.5}
                 />
               </div>
-            </motion.h1>
+            </motion.div>
           </div>
         </motion.div>
       )}

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useTransactions } from '@/context/TransactionContext';
 import { useAuth } from '@/context/AuthContext';
@@ -10,6 +11,7 @@ import { TransactionModal } from '@/components/transactions/TransactionModal';
 import { DeleteConfirmModal } from '@/components/transactions/DeleteConfirmModal';
 import { exportToCSV, exportToPDF } from '@/lib/exportUtils';
 import { FluidDropdown } from '@/components/ui/fluid-dropdown';
+import { ScrollPageBridge } from '@/components/layout/ScrollPageBridge';
 import { toast } from 'sonner';
 import {
   Search,
@@ -32,6 +34,9 @@ import {
   ShoppingBag,
   Clock,
   History,
+  ChevronUp,
+  ArrowRight,
+  LayoutDashboard,
 } from 'lucide-react';
 
 export default function TransactionsPage() {
@@ -43,6 +48,8 @@ export default function TransactionsPage() {
     settings,
   } = useTransactions();
   const { isAdmin } = useAuth();
+
+  const [isExiting, setIsExiting] = useState(false);
 
   // Filters & State
   const [searchQuery, setSearchQuery] = useState('');
@@ -213,7 +220,7 @@ export default function TransactionsPage() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 pb-12">
+      <div className={`space-y-4 pb-2 transition-all duration-200 ${isExiting ? 'opacity-0 translate-y-4' : 'animate-page-enter-down'}`}>
         
         {/* 1. Page Header & Export Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -490,6 +497,16 @@ export default function TransactionsPage() {
             </table>
           </div>
         </div>
+
+        {/* Scroll-driven Page Bridge to Dashboard */}
+        <ScrollPageBridge
+          targetRoute="/"
+          targetTitle="Continue to Dashboard"
+          targetSubtitle="Scroll to view your financial overview"
+          readyText="Dashboard Ready"
+          icon={LayoutDashboard}
+          onTransitionStart={() => setIsExiting(true)}
+        />
 
       </div>
 

@@ -11,8 +11,6 @@ import {
   Minus,
   LogOut,
   ChevronDown,
-  Shield,
-  User as UserIcon,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -27,7 +25,12 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { user, isAdmin, logout } = useAuth();
   const pathname = usePathname();
+
+  // Dropdown states
+  const [isActionOpen, setIsActionOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const actionRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
   const navLinks = [
@@ -35,9 +38,12 @@ export const Header: React.FC<HeaderProps> = ({
     { href: '/transactions', label: 'Transactions', icon: Receipt },
   ];
 
-  // Close profile dropdown on outside click
+  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      if (actionRef.current && !actionRef.current.contains(event.target as Node)) {
+        setIsActionOpen(false);
+      }
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
       }
@@ -50,13 +56,13 @@ export const Header: React.FC<HeaderProps> = ({
   const firstName = user?.name ? user.name.split(' ')[0] : 'Moses';
 
   return (
-    <header className="sticky top-0 z-50 bg-[#FAFAF8] border-b border-[#EAEAEA] select-none transition-colors">
+    <header className="sticky top-0 z-50 bg-[#F9F9F6] border-b border-[#ECE9E2] select-none transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[72px] relative">
           
           {/* 1. LEFT: Brand Lockup */}
           <Link href="/" className="flex items-center gap-3 group shrink-0">
-            <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-[#18212F] flex items-center justify-center transition-opacity group-hover:opacity-90">
+            <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-[#0D1522] flex items-center justify-center transition-opacity group-hover:opacity-90">
               <Image
                 src="/logo.png"
                 alt="Salt & Light Logo"
@@ -90,7 +96,7 @@ export const Header: React.FC<HeaderProps> = ({
                   href={link.href}
                   className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-xs transition-all duration-150 ${
                     isActive
-                      ? 'bg-[#18212F] text-white font-medium shadow-xs'
+                      ? 'bg-[#0D1522] text-white font-medium shadow-xs'
                       : 'text-[#737373] hover:text-[#1C1C1E] hover:bg-black/[0.04] font-medium'
                   }`}
                 >
@@ -101,27 +107,63 @@ export const Header: React.FC<HeaderProps> = ({
             })}
           </nav>
 
-          {/* 3. RIGHT: Actions & User Profile */}
+          {/* 3. RIGHT: Unified Add Transaction Action & User Profile */}
           <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-            {/* Primary Actions with refined hierarchy */}
+            
+            {/* Unified + Add Transaction Dropdown Button */}
             {isAdmin && (
-              <div className="flex items-center gap-2">
+              <div className="relative" ref={actionRef}>
                 <button
                   type="button"
-                  onClick={onAddIncome}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#238B6F] hover:bg-[#1e785f] active:scale-[0.98] text-white rounded-lg text-xs font-medium shadow-xs transition-all duration-150 cursor-pointer"
+                  onClick={() => setIsActionOpen((prev) => !prev)}
+                  className="flex items-center gap-1.5 px-3.5 py-2 bg-[#238B6F] hover:bg-[#1e785f] active:scale-[0.98] text-white rounded-lg text-xs font-semibold shadow-xs transition-all duration-150 cursor-pointer"
+                  aria-expanded={isActionOpen}
+                  aria-haspopup="true"
                 >
-                  <Plus size={13} className="stroke-[2.5]" />
-                  <span>Add Income</span>
+                  <Plus size={14} className="stroke-[2.5]" />
+                  <span>Add Transaction</span>
+                  <ChevronDown
+                    size={12}
+                    className={`transition-transform duration-150 ml-0.5 ${
+                      isActionOpen ? 'rotate-180' : ''
+                    }`}
+                  />
                 </button>
-                <button
-                  type="button"
-                  onClick={onAddExpense}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#D95763]/10 hover:bg-[#D95763]/15 active:scale-[0.98] text-[#D95763] border border-[#D95763]/25 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer"
-                >
-                  <Minus size={13} className="stroke-[2.5]" />
-                  <span>Add Expense</span>
-                </button>
+
+                {/* Dropdown Menu for Income / Expense */}
+                {isActionOpen && (
+                  <div className="absolute right-0 mt-1.5 w-44 bg-white rounded-xl shadow-lg border border-[#ECE9E2] py-1 z-50 animate-fadeIn">
+                    {/* Add Income Option */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsActionOpen(false);
+                        onAddIncome();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold text-[#1C1C1E] hover:bg-emerald-50/70 transition-colors text-left cursor-pointer"
+                    >
+                      <span className="w-5 h-5 rounded-md bg-emerald-100 text-[#238B6F] flex items-center justify-center shrink-0">
+                        <Plus size={12} className="stroke-[3]" />
+                      </span>
+                      <span>Add Income</span>
+                    </button>
+
+                    {/* Add Expense Option */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsActionOpen(false);
+                        onAddExpense();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold text-[#D95763] hover:bg-rose-50/70 transition-colors text-left cursor-pointer border-t border-[#ECE9E2]/60"
+                    >
+                      <span className="w-5 h-5 rounded-md bg-rose-100 text-[#D95763] flex items-center justify-center shrink-0">
+                        <Minus size={12} className="stroke-[3]" />
+                      </span>
+                      <span>Add Expense</span>
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
@@ -134,7 +176,7 @@ export const Header: React.FC<HeaderProps> = ({
                 aria-expanded={isProfileOpen}
                 aria-label="User menu"
               >
-                <div className="w-7 h-7 rounded-full bg-[#18212F] text-white flex items-center justify-center font-semibold text-xs">
+                <div className="w-7 h-7 rounded-full bg-[#0D1522] text-white flex items-center justify-center font-semibold text-xs">
                   {userInitial}
                 </div>
                 <span className="text-xs font-medium text-[#1C1C1E] hidden sm:block">
@@ -150,13 +192,13 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Minimal Profile Dropdown Menu */}
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-[#EAEAEA] py-1.5 z-50 animate-fadeIn">
-                  <div className="px-3.5 py-2 border-b border-[#EAEAEA]">
+                <div className="absolute right-0 mt-1.5 w-52 bg-white rounded-xl shadow-lg border border-[#ECE9E2] py-1.5 z-50 animate-fadeIn">
+                  <div className="px-3.5 py-2 border-b border-[#ECE9E2]">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-semibold text-[#1C1C1E] truncate">
                         {user?.name || 'Moses Sham Navin'}
                       </p>
-                      <span className="text-[10px] font-medium text-[#737373] bg-[#FAFAF8] border border-[#EAEAEA] px-1.5 py-0.5 rounded">
+                      <span className="text-[10px] font-medium text-[#737373] bg-[#F9F9F6] border border-[#ECE9E2] px-1.5 py-0.5 rounded">
                         {isAdmin ? 'Admin' : 'Member'}
                       </span>
                     </div>
@@ -183,7 +225,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden flex items-center gap-2 pb-2.5 pt-1 border-t border-[#EAEAEA]">
+        <div className="md:hidden flex items-center gap-2 pb-2.5 pt-1 border-t border-[#ECE9E2]">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive =
@@ -196,7 +238,7 @@ export const Header: React.FC<HeaderProps> = ({
                 href={link.href}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   isActive
-                    ? 'bg-[#18212F] text-white font-medium shadow-xs'
+                    ? 'bg-[#0D1522] text-white font-medium shadow-xs'
                     : 'bg-[#F0F0EE] text-[#737373] hover:text-[#1C1C1E]'
                 }`}
               >

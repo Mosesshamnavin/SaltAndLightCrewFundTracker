@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useTransactions } from '@/context/TransactionContext';
 import { useAuth } from '@/context/AuthContext';
 import { TransactionType } from '@/types';
 import { formatINR, formatDate } from '@/lib/formatters';
 import { TransactionModal } from '@/components/transactions/TransactionModal';
+import { ScrollPageBridge } from '@/components/layout/ScrollPageBridge';
 import { toast } from 'sonner';
 import {
   AreaChart,
@@ -24,7 +26,8 @@ import {
   ArrowRight,
   TrendingUp,
   PieChart as PieIcon,
-  Clock,
+  Receipt,
+  ChevronDown,
 } from 'lucide-react';
 
 const CATEGORY_COLORS: { [key: string]: string } = {
@@ -42,12 +45,49 @@ const CATEGORY_COLORS: { [key: string]: string } = {
   Other: '#737373',
 };
 
+// Rich Custom Tooltip that clearly shows Money Values
+const CustomChartTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const isIncome = data.type === 'income';
+    const isExpense = data.type === 'expense';
+
+    return (
+      <div className="bg-[#0D1522] border border-white/20 rounded-xl p-3 shadow-2xl text-white select-none min-w-[190px] pointer-events-none">
+        <p className="text-xs font-semibold text-[#F7F7F5] truncate max-w-[210px]">
+          {data.description || 'Running Balance'}
+        </p>
+        <p className="text-[11px] text-slate-400 mt-0.5">
+          {data.date}
+        </p>
+
+        <div className="mt-2 pt-2 border-t border-white/10 space-y-1 text-xs">
+          {(isIncome || isExpense) && (
+            <div className="flex items-center justify-between">
+              <span className="text-slate-400">{isIncome ? 'Inflow (+)' : 'Outflow (-)'}:</span>
+              <span className={`font-semibold ${isIncome ? 'text-[#238B6F]' : 'text-[#D95763]'}`}>
+                {isIncome ? `+ ${formatINR(data.amount)}` : `− ${formatINR(data.amount)}`}
+              </span>
+            </div>
+          )}
+          <div className="flex items-center justify-between font-bold pt-0.5">
+            <span className="text-slate-300">Fund Balance:</span>
+            <span className="text-emerald-400 tabular-nums">{formatINR(data.balance)}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function DashboardPage() {
   const { summary, activeTransactions, addTransaction } = useTransactions();
   const { isAdmin } = useAuth();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<TransactionType>('income');
+  const [isExiting, setIsExiting] = useState(false);
 
   const handleSaveTransaction = async (data: any) => {
     try {
@@ -63,36 +103,50 @@ export default function DashboardPage() {
     }
   };
 
-  // 1. Grouped Cash Flow Data for Clean X-Axis
+  // 1. Multi-point Chronological Balance Trajectory for Smooth Chart
   const chartData = useMemo(() => {
     const sorted = [...activeTransactions].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
-    let runningBalance = 0;
-    const dateMap = new Map<string, { date: string; balance: number; income: number; expense: number }>();
+    if (sorted.length === 0) {
+      return [
+        { axisLabel: 'Start', date: 'Initial', balance: 0, amount: 0, type: 'initial', description: 'Opening Balance' },
+        { axisLabel: 'Current', date: 'Now', balance: summary.currentBalance, amount: 0, type: 'current', description: 'Available Funds' },
+      ];
+    }
 
-    sorted.forEach((tx) => {
-      const d = formatDate(tx.date);
+    let runningBalance = 0;
+    const points: any[] = [];
+
+    // Starting baseline
+    points.push({
+      axisLabel: 'Start',
+      date: formatDate(sorted[0].date),
+      balance: 0,
+      amount: 0,
+      type: 'initial',
+      description: 'Opening Baseline',
+    });
+
+    sorted.forEach((tx, idx) => {
       if (tx.type === 'income') {
         runningBalance += tx.amount;
       } else {
         runningBalance -= tx.amount;
       }
 
-      const existing = dateMap.get(d) || { date: d, balance: runningBalance, income: 0, expense: 0 };
-      if (tx.type === 'income') existing.income += tx.amount;
-      else existing.expense += tx.amount;
-      existing.balance = runningBalance;
-      dateMap.set(d, existing);
+      points.push({
+        axisLabel: idx === sorted.length - 1 ? 'Now' : formatDate(tx.date),
+        date: formatDate(tx.date),
+        balance: runningBalance,
+        amount: tx.amount,
+        type: tx.type,
+        description: tx.description,
+      });
     });
 
-    const points = Array.from(dateMap.values());
-
-    return points.length > 0 ? points : [
-      { date: 'Initial', income: 0, expense: 0, balance: 0 },
-      { date: 'Current', income: summary.totalIncome, expense: summary.totalExpenses, balance: summary.currentBalance }
-    ];
+    return points;
   }, [activeTransactions, summary]);
 
   // 2. Category Breakdown for Donut Chart
@@ -109,77 +163,72 @@ export default function DashboardPage() {
     })).sort((a, b) => b.value - a.value);
   }, [activeTransactions]);
 
-  // 3. Latest 5 Transactions for Activity Feed
-  const recentTransactions = useMemo(() => {
-    return [...activeTransactions]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 5);
-  }, [activeTransactions]);
-
   return (
     <AppLayout>
-      <div className="space-y-6 pb-12">
+      <div className={`space-y-5 pb-2 transition-all duration-200 ${isExiting ? 'opacity-0 -translate-y-4' : 'animate-page-enter'}`}>
         
-        {/* 1. FINANCIAL HIERARCHY CARDS */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          {/* Main Dominant Available Balance Card (7 cols) */}
-          <div className="lg:col-span-7 bg-[#18212F] text-white rounded-[20px] p-6 sm:p-7 border border-[#18212F] flex flex-col justify-between shadow-xs">
+        {/* 1. TOP 3 FINANCIAL METRIC CARDS */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Card 1: Available Balance */}
+          <div className="bg-[#0D1522] text-white rounded-[20px] p-6 border border-[#162234] flex flex-col justify-between relative overflow-hidden shadow-[0_4px_20px_-4px_rgba(13,21,34,0.12)]">
+            {/* Subtle Top Inner Amber Highlight */}
+            <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/25 to-transparent pointer-events-none" />
+
             <div>
-              <p className="text-xs sm:text-sm font-medium text-slate-300">
-                Available balance
-              </p>
-              <div className="text-4xl sm:text-5xl font-bold tracking-tight text-white mt-3 tabular-nums">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-300">Available balance</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              </div>
+              <div className="text-3xl sm:text-4xl font-bold tracking-tight text-[#F7F7F5] mt-3 tabular-nums">
                 {formatINR(summary.currentBalance)}
               </div>
-              <p className="text-xs text-slate-400 mt-2">
-                Available church funds
-              </p>
             </div>
 
-            <div className="mt-6 pt-5 border-t border-white/10 flex flex-wrap items-center gap-5 text-xs text-slate-300">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#238B6F]" />
-                <span>Income <strong className="text-white font-semibold tabular-nums">{formatINR(summary.totalIncome)}</strong></span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#D95763]" />
-                <span>Expenses <strong className="text-white font-semibold tabular-nums">{formatINR(summary.totalExpenses)}</strong></span>
-              </div>
+            <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-300">
+              <span className="text-slate-400">Available church funds</span>
+              <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded">
+                Active
+              </span>
             </div>
           </div>
 
-          {/* Secondary Summary Cards (5 cols) */}
-          <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-5">
-            {/* Total Income */}
-            <div className="bg-white border border-[#EAEAEA] rounded-[20px] p-5 sm:p-6 flex flex-col justify-between transition-colors">
+          {/* Card 2: Total Income */}
+          <div className="bg-white border border-[#ECE9E2] rounded-[20px] p-6 flex flex-col justify-between shadow-[0_2px_10px_-3px_rgba(20,28,40,0.04)] hover:shadow-[0_6px_20px_-4px_rgba(20,28,40,0.06)] transition-all duration-200">
+            <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-[#737373]">Total income</span>
                 <span className="w-2 h-2 rounded-full bg-[#238B6F]" />
               </div>
-              <div className="mt-3">
-                <div className="text-2xl sm:text-3xl font-bold text-[#1C1C1E] tracking-tight tabular-nums">
-                  {formatINR(summary.totalIncome)}
-                </div>
-                <p className="text-xs text-[#737373] mt-1">
-                  + money received
-                </p>
+              <div className="text-3xl sm:text-4xl font-bold text-[#1C1C1E] mt-3 tracking-tight tabular-nums">
+                {formatINR(summary.totalIncome)}
               </div>
             </div>
 
-            {/* Total Expense */}
-            <div className="bg-white border border-[#EAEAEA] rounded-[20px] p-5 sm:p-6 flex flex-col justify-between transition-colors">
+            <div className="mt-4 pt-3 border-t border-[#ECE9E2] flex items-center justify-between text-xs text-[#737373]">
+              <span>+ money received</span>
+              <span className="text-[11px] font-semibold text-[#238B6F] bg-emerald-50 px-2 py-0.5 rounded">
+                Verified
+              </span>
+            </div>
+          </div>
+
+          {/* Card 3: Total Expense */}
+          <div className="bg-white border border-[#ECE9E2] rounded-[20px] p-6 flex flex-col justify-between shadow-[0_2px_10px_-3px_rgba(20,28,40,0.04)] hover:shadow-[0_6px_20px_-4px_rgba(20,28,40,0.06)] transition-all duration-200">
+            <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-[#737373]">Total expense</span>
                 <span className="w-2 h-2 rounded-full bg-[#D95763]" />
               </div>
-              <div className="mt-3">
-                <div className="text-2xl sm:text-3xl font-bold text-[#1C1C1E] tracking-tight tabular-nums">
-                  {formatINR(summary.totalExpenses)}
-                </div>
-                <p className="text-xs text-[#737373] mt-1">
-                  money spent
-                </p>
+              <div className="text-3xl sm:text-4xl font-bold text-[#1C1C1E] mt-3 tracking-tight tabular-nums">
+                {formatINR(summary.totalExpenses)}
               </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-[#ECE9E2] flex items-center justify-between text-xs text-[#737373]">
+              <span>money spent</span>
+              <span className="text-[11px] font-semibold text-[#D95763] bg-rose-50 px-2 py-0.5 rounded">
+                Audited
+              </span>
             </div>
           </div>
         </div>
@@ -187,15 +236,15 @@ export default function DashboardPage() {
         {/* 2. CHARTS SECTION */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           {/* Cash Flow Overview Chart (7 cols) */}
-          <div className="lg:col-span-7 bg-white border border-[#EAEAEA] rounded-[20px] p-6 flex flex-col justify-between">
-            <div className="pb-4 border-b border-[#EAEAEA] flex items-center justify-between">
+          <div className="lg:col-span-7 bg-white border border-[#ECE9E2] rounded-[20px] p-6 flex flex-col justify-between shadow-[0_2px_10px_-3px_rgba(20,28,40,0.04)]">
+            <div className="pb-4 border-b border-[#ECE9E2] flex items-center justify-between">
               <div>
                 <h2 className="text-base font-semibold text-[#1C1C1E]">Cash Flow Overview</h2>
-                <p className="text-xs text-[#737373] mt-0.5">Income and expenses over time</p>
+                <p className="text-xs text-[#737373] mt-0.5">Chronological trajectory of church funds (INR ₹)</p>
               </div>
             </div>
 
-            <div className="h-60 sm:h-64 w-full pt-4">
+            <div className="h-72 sm:h-80 w-full pt-4">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={chartData}
@@ -203,14 +252,14 @@ export default function DashboardPage() {
                 >
                   <defs>
                     <linearGradient id="balanceGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#18212F" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="#18212F" stopOpacity={0.0} />
+                      <stop offset="5%" stopColor="#0D1522" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#0D1522" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
                   <XAxis
-                    dataKey="date"
+                    dataKey="axisLabel"
                     tickLine={false}
-                    axisLine={{ stroke: '#EAEAEA' }}
+                    axisLine={{ stroke: '#ECE9E2' }}
                     tick={{ fill: '#737373', fontSize: 11 }}
                   />
                   <YAxis
@@ -219,22 +268,12 @@ export default function DashboardPage() {
                     tick={{ fill: '#737373', fontSize: 11 }}
                     tickFormatter={(val) => `₹${val >= 1000 ? (val / 1000).toFixed(0) + 'k' : val}`}
                   />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#18212F',
-                      border: 'none',
-                      borderRadius: '10px',
-                      color: '#FFFFFF',
-                      fontSize: '12px',
-                      padding: '8px 12px',
-                    }}
-                    formatter={(value: any) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Balance']}
-                  />
+                  <Tooltip content={<CustomChartTooltip />} />
                   <Area
                     type="monotone"
                     dataKey="balance"
-                    stroke="#18212F"
-                    strokeWidth={2}
+                    stroke="#0D1522"
+                    strokeWidth={2.5}
                     fillOpacity={1}
                     fill="url(#balanceGrad)"
                   />
@@ -244,21 +283,21 @@ export default function DashboardPage() {
           </div>
 
           {/* Fund Breakdown Chart (5 cols) */}
-          <div className="lg:col-span-5 bg-white border border-[#EAEAEA] rounded-[20px] p-6 flex flex-col justify-between">
-            <div className="pb-4 border-b border-[#EAEAEA]">
+          <div className="lg:col-span-5 bg-white border border-[#ECE9E2] rounded-[20px] p-6 flex flex-col justify-between shadow-[0_2px_10px_-3px_rgba(20,28,40,0.04)]">
+            <div className="pb-4 border-b border-[#ECE9E2]">
               <h2 className="text-base font-semibold text-[#1C1C1E]">Fund Breakdown</h2>
               <p className="text-xs text-[#737373] mt-0.5">Distribution by category</p>
             </div>
 
-            <div className="h-44 w-full flex items-center justify-center my-2">
+            <div className="h-52 w-full flex items-center justify-center my-2">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={categoryData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={48}
-                    outerRadius={68}
+                    innerRadius={54}
+                    outerRadius={76}
                     paddingAngle={3}
                     dataKey="value"
                   >
@@ -268,7 +307,7 @@ export default function DashboardPage() {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#18212F',
+                      backgroundColor: '#0D1522',
                       border: 'none',
                       borderRadius: '10px',
                       color: '#FFFFFF',
@@ -280,9 +319,9 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             </div>
 
-            {/* Clean Category List */}
-            <div className="space-y-1.5 pt-3 border-t border-[#EAEAEA] max-h-32 overflow-y-auto pr-1">
-              {categoryData.map((cat) => (
+            {/* Clean Category List without Internal Scrollbar */}
+            <div className="space-y-2 pt-3 border-t border-[#ECE9E2]">
+              {categoryData.slice(0, 4).map((cat) => (
                 <div key={cat.name} className="flex items-center justify-between text-xs py-0.5">
                   <div className="flex items-center gap-2 truncate">
                     <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
@@ -293,68 +332,31 @@ export default function DashboardPage() {
                   </span>
                 </div>
               ))}
-            </div>
-          </div>
-        </div>
 
-        {/* 3. RECENT TRANSACTIONS ACTIVITY FEED */}
-        <div className="bg-white border border-[#EAEAEA] rounded-[20px] p-6">
-          <div className="flex items-center justify-between pb-4 border-b border-[#EAEAEA]">
-            <div>
-              <h2 className="text-base font-semibold text-[#1C1C1E]">Recent Transactions</h2>
-              <p className="text-xs text-[#737373] mt-0.5">Latest church financial activity</p>
-            </div>
-            <Link
-              href="/transactions"
-              className="text-xs font-medium text-[#238B6F] hover:text-[#1e785f] inline-flex items-center gap-1 transition-colors"
-            >
-              <span>View all</span>
-              <ArrowRight size={13} />
-            </Link>
-          </div>
-
-          <div className="divide-y divide-[#EAEAEA]">
-            {recentTransactions.length === 0 ? (
-              <div className="py-8 text-center text-xs text-[#737373]">
-                No recent transactions recorded yet.
-              </div>
-            ) : (
-              recentTransactions.map((tx) => {
-                const isIncome = tx.type === 'income';
-                return (
-                  <div
-                    key={tx.id}
-                    className="py-3.5 flex items-center justify-between hover:bg-[#FAFAF8] px-2 -mx-2 rounded-xl transition-colors"
+              {categoryData.length > 4 && (
+                <div className="pt-1">
+                  <Link
+                    href="/transactions"
+                    className="text-[11px] font-medium text-[#238B6F] hover:text-[#1e785f] inline-flex items-center gap-1 transition-colors"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span
-                        className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                          isIncome ? 'bg-[#238B6F]' : 'bg-[#D95763]'
-                        }`}
-                      />
-                      <div className="min-w-0">
-                        <p className="text-xs sm:text-sm font-semibold text-[#1C1C1E] truncate">
-                          {tx.description}
-                        </p>
-                        <p className="text-[11px] text-[#737373] mt-0.5">
-                          {isIncome ? 'Income' : 'Expense'} · {tx.category} · {formatDate(tx.date)}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div
-                      className={`text-xs sm:text-sm font-semibold tabular-nums whitespace-nowrap ml-4 ${
-                        isIncome ? 'text-[#238B6F]' : 'text-[#D95763]'
-                      }`}
-                    >
-                      {isIncome ? `+ ${formatINR(tx.amount)}` : `− ${formatINR(tx.amount)}`}
-                    </div>
-                  </div>
-                );
-              })
-            )}
+                    <span>View all {categoryData.length} categories in transactions</span>
+                    <ArrowRight size={11} />
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* 3. Scroll-driven Page Bridge to Transactions Ledger */}
+        <ScrollPageBridge
+          targetRoute="/transactions"
+          targetTitle="Continue to Transactions Ledger"
+          targetSubtitle="Scroll to view detailed transaction ledger"
+          readyText="Transactions Ready"
+          icon={Receipt}
+          onTransitionStart={() => setIsExiting(true)}
+        />
 
       </div>
 

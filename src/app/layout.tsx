@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Caveat } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { TransactionProvider } from '@/context/TransactionContext';
@@ -10,6 +10,13 @@ const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800'],
   variable: '--font-inter',
+  display: 'swap',
+});
+
+const caveat = Caveat({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-caveat',
   display: 'swap',
 });
 
@@ -28,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${inter.className}`}>
+    <html lang="en" className={`${inter.variable} ${caveat.variable} ${inter.className}`}>
       <body className="bg-[#F8FAFC] text-slate-900 antialiased font-sans font-normal">
         <AuthProvider>
           <TransactionProvider>
