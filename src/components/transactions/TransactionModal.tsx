@@ -275,7 +275,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               </label>
               <DatePicker
                 value={date}
-                onChange={(val) => setDate(val)}
+                onChange={(val: string) => setDate(val)}
               />
             </div>
           </div>
