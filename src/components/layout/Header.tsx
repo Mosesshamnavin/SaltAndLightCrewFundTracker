@@ -121,7 +121,8 @@ export const Header: React.FC<HeaderProps> = ({
                   aria-haspopup="true"
                 >
                   <Plus size={14} className="stroke-[2.5]" />
-                  <span>Add Transaction</span>
+                  <span className="hidden sm:inline">Add Transaction</span>
+                  <span className="sm:hidden">Add</span>
                   <ChevronDown
                     size={12}
                     className={`transition-transform duration-150 ml-0.5 ${
