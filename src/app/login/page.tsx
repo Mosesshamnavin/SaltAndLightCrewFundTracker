@@ -107,7 +107,7 @@ export default function LoginPage() {
             Salt and Light Fund Tracker
           </h1>
           <p className="text-xs text-[#9DA2AD] mt-1 font-medium">
-            Church Financial Management
+            Youth Financial Management
           </p>
         </div>
 

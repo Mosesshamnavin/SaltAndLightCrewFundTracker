@@ -52,7 +52,7 @@ const INCOME_CATEGORY_ITEMS: FluidCategory[] = [
 ];
 
 const EXPENSE_CATEGORY_ITEMS: FluidCategory[] = [
-  { id: 'Church Activity', label: 'Church Activity', icon: Activity, color: '#A855F7' },
+  { id: 'Youth Activity', label: 'Youth Activity', icon: Activity, color: '#A855F7' },
   { id: 'Investment', label: 'Investment', icon: TrendingUp, color: '#10B981' },
   { id: 'Product Purchase', label: 'Product Purchase', icon: ShoppingBag, color: '#EC4899' },
   { id: 'Utilities', label: 'Utilities', icon: Zap, color: '#FB923C' },
@@ -93,7 +93,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           setDate(editingTransaction.date || new Date().toISOString().split('T')[0]);
         } else {
           setType(initialType);
-          setCategory(initialType === 'income' ? 'Offering' : 'Church Activity');
+          setCategory(initialType === 'income' ? 'Offering' : 'Youth Activity');
           setAmount('');
           setDescription('');
           setDate(new Date().toISOString().split('T')[0]);
@@ -112,7 +112,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     if (newType === 'income') {
       setCategory('Offering');
     } else {
-      setCategory('Church Activity');
+      setCategory('Youth Activity');
     }
   };
 
@@ -166,7 +166,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 rounded-t-3xl">
           <div>
             <h2 className="text-lg font-bold text-slate-800">
-              {editingTransaction ? 'Edit Transaction' : isIncome ? 'Add Church Income' : 'Add Church Expense'}
+              {editingTransaction ? 'Edit Transaction' : isIncome ? 'Add Youth Income' : 'Add Youth Expense'}
             </h2>
           </div>
           <button

@@ -61,7 +61,7 @@ export function exportToCSV(transactions: Transaction[], churchName: string = 'S
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.setAttribute('href', url);
-  link.setAttribute('download', `church_financial_ledger_${new Date().toISOString().split('T')[0]}.csv`);
+  link.setAttribute('download', `youth_financial_ledger_${new Date().toISOString().split('T')[0]}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -69,7 +69,7 @@ export function exportToCSV(transactions: Transaction[], churchName: string = 'S
 }
 
 /**
- * Downloads a clean, official PDF Statement with church letterhead, summary stats, and table.
+ * Downloads a clean, official PDF Statement with youth letterhead, summary stats, and table.
  */
 export function exportToPDF(
   transactions: Transaction[],
@@ -105,7 +105,7 @@ export function exportToPDF(
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(203, 213, 225); // Slate-300
-  doc.text('Official Income & Expense Statement (INR)', 14, 22);
+  doc.text('Youth Income & Expense Statement (INR)', 14, 22);
 
   const printDate = new Date().toLocaleDateString('en-IN', {
     day: '2-digit',
@@ -222,5 +222,5 @@ export function exportToPDF(
   });
 
   // Save the generated PDF file
-  doc.save(`church_statement_${new Date().toISOString().split('T')[0]}.pdf`);
+  doc.save(`youth_statement_${new Date().toISOString().split('T')[0]}.pdf`);
 }

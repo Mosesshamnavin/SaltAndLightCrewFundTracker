@@ -20,7 +20,7 @@ export type IncomeCategory =
   | 'Other';
 
 export type ExpenseCategory =
-  | 'Church Activity'
+  | 'Youth Activity'
   | 'Investment'
   | 'Product Purchase'
   | 'Utilities'

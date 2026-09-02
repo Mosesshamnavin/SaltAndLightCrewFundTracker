@@ -34,7 +34,7 @@ const CATEGORY_COLORS: { [key: string]: string } = {
   Donation: '#10B981',
   Fundraising: '#0F766E',
   Sales: '#06B6D4',
-  'Church Activity': '#8B5CF6',
+  'Youth Activity': '#8B5CF6',
   Investment: '#10B981',
   'Product Purchase': '#EC4899',
   Utilities: '#F59E0B',
@@ -197,7 +197,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-300">
-              <span className="text-slate-400">Available church funds</span>
+              <span className="text-slate-400">Available youth funds</span>
               <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded">
                 Active
               </span>
@@ -326,7 +326,7 @@ export default function DashboardPage() {
             <div className="pb-3 border-b border-[#ECE9E2] flex items-center justify-between">
               <div>
                 <h2 className="text-base font-semibold text-[#1C1C1E]">Expense Distribution</h2>
-                <p className="text-xs text-[#737373] mt-0.5">Where church funds are spent</p>
+                <p className="text-xs text-[#737373] mt-0.5">Where youth funds are spent</p>
               </div>
               <span className="text-xs font-bold text-[#D95763] bg-rose-50 px-2 py-0.5 rounded tabular-nums">
                 −{formatINR(expenseData.totalExp)}

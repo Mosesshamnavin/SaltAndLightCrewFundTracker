@@ -65,7 +65,7 @@ export default function SettingsPage() {
             Settings & User Management
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Manage church details, financial access roles, and audit trail
+            Manage youth crew details, financial access roles, and audit trail
           </p>
         </div>
 
@@ -80,7 +80,7 @@ export default function SettingsPage() {
             }`}
           >
             <Church size={16} />
-            <span>Church Profile</span>
+            <span>Youth Profile</span>
           </button>
           <button
             onClick={() => setActiveTab('users')}
@@ -111,7 +111,7 @@ export default function SettingsPage() {
           <div className="bg-white rounded-2xl p-6 shadow-card border border-slate-100 max-w-2xl">
             <form onSubmit={handleSaveChurchInfo} className="space-y-5">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <h3 className="text-base font-bold text-slate-800">Church Information</h3>
+                <h3 className="text-base font-bold text-slate-800">Youth Crew Information</h3>
                 {!isAdmin && (
                   <span className="text-xs text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 flex items-center gap-1">
                     <Lock size={12} /> Admin only
@@ -121,13 +121,13 @@ export default function SettingsPage() {
 
               {savedSettingsMsg && (
                 <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-semibold flex items-center gap-2">
-                  <Check size={16} /> Church settings updated successfully!
+                  <Check size={16} /> Youth settings updated successfully!
                 </div>
               )}
 
               <div>
                 <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
-                  Church Name
+                  Youth Crew Name
                 </label>
                 <input
                   type="text"
