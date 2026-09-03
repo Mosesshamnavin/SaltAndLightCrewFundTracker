@@ -122,11 +122,12 @@ export default function LoginPage() {
             <input
               id="email"
               type="text"
+              autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="user@2026"
               required
-              className="w-full px-3.5 py-2.5 bg-black/40 border border-white/[0.12] rounded-xl text-xs sm:text-sm text-[#F7F7F5] placeholder-[#767C88] focus:outline-none focus:border-[#0F766E]/60 focus:ring-2 focus:ring-[#0F766E]/20 focus:bg-black/50 transition-all duration-200"
+              className="login-input w-full px-3.5 py-2.5 bg-black/40 border border-white/[0.12] rounded-xl text-xs sm:text-sm text-[#F7F7F5] placeholder-[#767C88] focus:outline-none focus:border-[#0F766E]/60 focus:ring-2 focus:ring-[#0F766E]/20 focus:bg-black/50 transition-all duration-200"
             />
           </div>
 
@@ -141,11 +142,12 @@ export default function LoginPage() {
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full pl-3.5 pr-10 py-2.5 bg-black/40 border border-white/[0.12] rounded-xl text-xs sm:text-sm text-[#F7F7F5] placeholder-[#767C88] focus:outline-none focus:border-[#0F766E]/60 focus:ring-2 focus:ring-[#0F766E]/20 focus:bg-black/50 transition-all duration-200"
+                className="login-input w-full pl-3.5 pr-10 py-2.5 bg-black/40 border border-white/[0.12] rounded-xl text-xs sm:text-sm text-[#F7F7F5] placeholder-[#767C88] focus:outline-none focus:border-[#0F766E]/60 focus:ring-2 focus:ring-[#0F766E]/20 focus:bg-black/50 transition-all duration-200"
               />
               <button
                 type="button"
@@ -195,22 +197,6 @@ export default function LoginPage() {
             {isSubmitting ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
-
-        {/* Subtle Background Slide Indicators */}
-        <div className="flex items-center justify-center gap-1.5 pt-4">
-          {BACKGROUND_IMAGES.map((_, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => setCurrentBgIndex(idx)}
-              className={`h-1 rounded-full transition-all duration-300 cursor-pointer ${
-                idx === currentBgIndex ? 'w-5 bg-amber-400/80' : 'w-1.5 bg-white/20 hover:bg-white/40'
-              }`}
-              aria-label={`Go to slide ${idx + 1}`}
-            />
-          ))}
-        </div>
-
       </div>
     </div>
   );

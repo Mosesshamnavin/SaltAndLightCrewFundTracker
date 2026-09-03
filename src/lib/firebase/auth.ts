@@ -55,9 +55,14 @@ export async function loginWithFirebase(email: string, password: string): Promis
   const trimmedPassword = password.trim();
 
   // 1. Strict demo credentials check
-  if (normalizedEmail === 'user' || normalizedEmail === 'user@2026.com') {
-    if (trimmedPassword !== 'user@123') {
-      throw new Error('Incorrect password for user@2026.');
+  if (
+    normalizedEmail === 'user' ||
+    normalizedEmail === 'user@2026' ||
+    normalizedEmail === 'user@2026.com' ||
+    normalizedEmail === 'user@slc.in'
+  ) {
+    if (trimmedPassword !== 'user@123' && trimmedPassword !== 'user2026') {
+      throw new Error('Incorrect password for User account.');
     }
     return {
       id: 'demo-user-2026',
@@ -69,7 +74,12 @@ export async function loginWithFirebase(email: string, password: string): Promis
     };
   }
 
-  if (normalizedEmail === 'admin@slc.in' || normalizedEmail === 'admin@saltandlight.in') {
+  if (
+    normalizedEmail === 'admin' ||
+    normalizedEmail === 'admin@slc.in' ||
+    normalizedEmail === 'admin@saltandlight.in' ||
+    normalizedEmail === 'admin@2026'
+  ) {
     if (trimmedPassword !== 'admin@123' && trimmedPassword !== 'admin2026') {
       throw new Error('Incorrect password for Admin account.');
     }
