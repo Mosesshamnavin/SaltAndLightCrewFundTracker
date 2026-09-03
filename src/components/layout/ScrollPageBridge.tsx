@@ -7,7 +7,7 @@ import { LucideIcon, ChevronDown, Check } from 'lucide-react';
 interface ScrollPageBridgeProps {
   targetRoute: string;
   targetTitle: string;
-  targetSubtitle: string;
+  targetSubtitle?: string;
   readyText: string;
   icon: LucideIcon;
   onTransitionStart?: () => void;
@@ -134,10 +134,10 @@ export const ScrollPageBridge: React.FC<ScrollPageBridgeProps> = ({
   return (
     <div
       onClick={handleManualClick}
-      className="mt-6 pb-2 flex flex-col items-center justify-center select-none cursor-pointer group"
-      title="Scroll down or click to switch view"
+      className="mt-8 mb-4 max-w-sm mx-auto p-4 rounded-2xl bg-white border border-slate-200/80 shadow-card hover:shadow-card-hover hover:border-slate-300/80 transition-all duration-200 select-none cursor-pointer group"
+      title="Click or scroll down to navigate"
     >
-      <div className="flex flex-col items-center text-center max-w-xs transition-transform duration-200">
+      <div className="flex flex-col items-center text-center">
         
         {/* 1. Small subtle dashboard/grid icon */}
         <div
@@ -145,48 +145,51 @@ export const ScrollPageBridge: React.FC<ScrollPageBridgeProps> = ({
           style={{ transform: `scale(${1 + (progress / 100) * 0.15})` }}
         >
           {isReady ? (
-            <div className="w-7 h-7 rounded-full bg-[#238B6F] text-white flex items-center justify-center shadow-xs">
-              <Check size={14} className="stroke-[3]" />
+            <div className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center shadow-xs">
+              <Check size={16} className="stroke-[2.5]" />
             </div>
           ) : (
-            <div className="w-7 h-7 rounded-full bg-black/[0.04] group-hover:bg-black/[0.08] text-[#0D1522] flex items-center justify-center transition-colors">
+            <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-primary-50 text-slate-700 group-hover:text-primary flex items-center justify-center transition-colors">
               <Icon
-                size={14}
+                size={16}
                 className={`transition-colors ${
-                  progress > 0 ? 'text-[#238B6F]' : 'text-[#0D1522]'
+                  progress > 0 ? 'text-primary' : 'text-slate-600 group-hover:text-primary'
                 }`}
               />
             </div>
           )}
         </div>
 
-        {/* 2. Primary text (Navy) */}
-        <h4 className="text-xs sm:text-sm font-semibold text-[#0D1522] tracking-tight transition-colors">
+        {/* 2. Primary text */}
+        <h4 className="text-xs sm:text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors tracking-tight">
           {isReady ? (
-            <span className="text-[#238B6F] font-bold">{readyText}</span>
+            <span className="text-primary font-bold">{readyText}</span>
           ) : (
             targetTitle
           )}
         </h4>
 
-        {/* 3. Secondary text (Subtle Gray) */}
-        <p className="text-[11px] text-[#737373] mt-0.5 font-normal">
-          {isReady ? 'Opening view...' : targetSubtitle}
-        </p>
+        {/* 3. Secondary text */}
+        {targetSubtitle && (
+          <p className="text-[11px] text-slate-500 mt-0.5 font-normal">
+            {isReady ? 'Opening view...' : targetSubtitle}
+          </p>
+        )}
 
         {/* 4. Thin horizontal progress indicator & subtle percentage */}
         <div className="w-48 sm:w-56 mt-3 space-y-1">
-          <div className="w-full h-1 bg-black/[0.06] rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#238B6F] rounded-full transition-all duration-75"
+              className="h-full bg-primary rounded-full transition-all duration-75"
               style={{ width: `${progress}%` }}
             />
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-between items-center text-[10px] text-slate-400">
+            <span className="group-hover:text-slate-600 transition-colors">Click to switch</span>
             <span
-              className={`text-[10px] font-mono tabular-nums transition-colors ${
-                progress > 0 ? 'text-[#238B6F] font-medium' : 'text-transparent group-hover:text-slate-400'
+              className={`font-mono tabular-nums transition-colors ${
+                progress > 0 ? 'text-primary font-semibold' : 'text-slate-400'
               }`}
             >
               {progress}%
@@ -196,14 +199,14 @@ export const ScrollPageBridge: React.FC<ScrollPageBridgeProps> = ({
 
         {/* 5. Small downward arrow */}
         <div
-          className="mt-0.5 transition-transform"
+          className="mt-1 transition-transform"
           style={{ transform: `translateY(${(progress / 100) * 4}px)` }}
         >
           <ChevronDown
             size={13}
             className={`transition-colors ${
               progress > 0
-                ? 'text-[#238B6F] animate-bounce'
+                ? 'text-primary animate-bounce'
                 : 'text-slate-400 group-hover:text-slate-600'
             }`}
           />

@@ -34,46 +34,46 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100">
+      <div className="bg-white rounded-2xl shadow-modal max-w-md w-full overflow-hidden border border-slate-200/80">
         {/* Header */}
         <div className="p-6 text-center">
-          <div className="mx-auto w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center text-[#D95763] mb-3">
-            <AlertTriangle size={20} />
+          <div className="mx-auto w-12 h-12 rounded-2xl bg-rose-50 border border-rose-100/80 flex items-center justify-center text-rose-600 mb-3.5 shadow-xs">
+            <AlertTriangle size={22} />
           </div>
-          <h3 className="text-base font-bold text-[#1C1C1E]">Delete Transaction</h3>
-          <p className="text-xs text-[#737373] mt-1">
-            Are you sure you want to delete this record? This action will be recorded in the audit log.
+          <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Delete Transaction Record</h3>
+          <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+            Are you sure you want to delete this record? This action will be recorded in the audit trail.
           </p>
 
           {/* Details Card */}
-          <div className="mt-4 p-3.5 rounded-xl bg-[#FAFAF8] border border-[#EAEAEA] text-left text-xs space-y-1.5">
-            <div className="flex justify-between">
-              <span className="text-[#737373]">Category:</span>
-              <span className="font-semibold text-[#1C1C1E]">{transaction.category}</span>
+          <div className="mt-4 p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-left text-xs space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500 font-medium">Category:</span>
+              <span className="font-semibold text-slate-900 bg-white border border-slate-200/60 px-2 py-0.5 rounded-md">{transaction.category}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-[#737373]">Amount:</span>
-              <span className={`font-semibold ${transaction.type === 'income' ? 'text-[#238B6F]' : 'text-[#D95763]'}`}>
-                {formatINR(transaction.amount)}
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500 font-medium">Amount:</span>
+              <span className={`font-bold tabular-nums ${transaction.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                {transaction.type === 'income' ? `+ ${formatINR(transaction.amount)}` : `− ${formatINR(transaction.amount)}`}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-[#737373]">Date:</span>
-              <span className="font-medium text-[#1C1C1E]">{formatDate(transaction.date)}</span>
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500 font-medium">Date:</span>
+              <span className="font-medium text-slate-700">{formatDate(transaction.date)}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-[#737373]">Description:</span>
-              <span className="font-medium text-[#1C1C1E] truncate max-w-[200px]">{transaction.description}</span>
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500 font-medium">Description:</span>
+              <span className="font-medium text-slate-800 truncate max-w-[200px]">{transaction.description}</span>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 bg-[#FAFAF8] border-t border-[#EAEAEA] flex items-center justify-end gap-2.5">
+        <div className="px-6 py-3.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-end gap-2.5">
           <button
             type="button"
             onClick={onClose}
-            className="px-3.5 py-1.5 rounded-lg border border-[#EAEAEA] text-xs font-medium text-[#737373] hover:bg-white transition cursor-pointer"
+            className="px-4 py-2 rounded-xl border border-slate-200/80 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-white transition cursor-pointer"
           >
             Cancel
           </button>
@@ -81,10 +81,10 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
             type="button"
             disabled={isDeleting}
             onClick={handleDelete}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#D95763] hover:bg-[#c44955] text-white text-xs font-medium shadow-xs transition disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white text-xs font-semibold shadow-xs transition disabled:opacity-50 cursor-pointer"
           >
-            <Trash2 size={13} />
-            {isDeleting ? 'Deleting...' : 'Delete Record'}
+            <Trash2 size={14} />
+            <span>{isDeleting ? 'Deleting...' : 'Delete Permanently'}</span>
           </button>
         </div>
       </div>

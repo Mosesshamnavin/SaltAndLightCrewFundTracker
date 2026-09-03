@@ -27,7 +27,7 @@ export const INITIAL_USERS: UserProfile[] = [
   },
   {
     id: 'user-member-1',
-    name: 'Youth Member (Gmail)',
+    name: 'Youth Member',
     email: 'member@gmail.com',
     role: 'user',
     createdAt: '2026-01-05T10:30:00.000Z',

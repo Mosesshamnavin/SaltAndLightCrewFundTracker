@@ -8,28 +8,40 @@ export const SplashScreen: React.FC = () => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
 
   useEffect(() => {
-    // Smooth cinematic hold for 3 seconds then fade out
+    // Only show splash screen once per tab session for better user experience
+    const hasSeenSplash = sessionStorage.getItem('hasSeenSplash_v1');
+    if (hasSeenSplash) {
+      setIsVisible(false);
+      return;
+    }
+
     const timer = setTimeout(() => {
       setIsVisible(false);
-    }, 3000);
+      sessionStorage.setItem('hasSeenSplash_v1', 'true');
+    }, 1800);
 
     return () => clearTimeout(timer);
   }, []);
+
+  const handleDismiss = () => {
+    setIsVisible(false);
+    sessionStorage.setItem('hasSeenSplash_v1', 'true');
+  };
 
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, filter: 'blur(10px)' }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#09090b] text-white select-none px-6"
+          exit={{ opacity: 0, filter: 'blur(12px)', transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } }}
+          onClick={handleDismiss}
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#070B11] text-white select-none px-6 cursor-pointer"
         >
-          <div className="flex min-h-[360px] w-full max-w-3xl flex-col items-center justify-center text-center gap-2">
+          <div className="flex min-h-[320px] w-full max-w-2xl flex-col items-center justify-center text-center gap-2">
             <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
+              initial={{ opacity: 0, y: 12, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
               className="text-center"
             >
               {/* Dark Teal Heading */}
@@ -41,13 +53,13 @@ export const SplashScreen: React.FC = () => {
                 A Salt And Light Crew Production
               </p>
 
-              <div className="mt-2.5 flex items-center justify-center">
+              <div className="mt-4 flex items-center justify-center">
                 <HandwritingText
                   text="Co-presented by Sham Souza"
                   fontUrl="/fonts/Caveat.ttf"
-                  className="text-emerald-400/90 drop-shadow-[0_0_12px_rgba(52,211,153,0.25)]"
-                  height="22px"
-                  duration={1.6}
+                  className="text-teal-400/90"
+                  height="24px"
+                  duration={1.4}
                   strokeWidth={1.2}
                 />
               </div>

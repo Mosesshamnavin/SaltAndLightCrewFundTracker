@@ -39,17 +39,17 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F9F9F6]">
+      <div className="min-h-screen flex items-center justify-center bg-surface">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-[#0D1522] border-t-transparent animate-spin" />
-          <span className="text-xs text-[#737373] font-medium">Authenticating...</span>
+          <div className="w-9 h-9 rounded-full border-2 border-primary-100 border-t-primary animate-spin" />
+          <span className="text-xs text-slate-500 font-medium tracking-wide">Loading workspace...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F9F9F6]">
+    <div className="min-h-screen flex flex-col bg-surface text-slate-900">
       {/* Unified Top Navigation Header */}
       <Header
         onAddIncome={handleOpenAddIncome}
@@ -57,7 +57,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       />
 
       {/* Full-width Spacious Page Canvas */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-5">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
         {children}
       </main>
 

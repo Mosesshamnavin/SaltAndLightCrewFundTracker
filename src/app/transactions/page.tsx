@@ -12,7 +12,6 @@ import { DeleteConfirmModal } from '@/components/transactions/DeleteConfirmModal
 import { exportToCSV, exportToPDF } from '@/lib/exportUtils';
 import { FluidDropdown } from '@/components/ui/fluid-dropdown';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ScrollPageBridge } from '@/components/layout/ScrollPageBridge';
 import { toast } from 'sonner';
 import {
   Search,
@@ -35,9 +34,8 @@ import {
   ShoppingBag,
   Clock,
   History,
-  ChevronUp,
-  ArrowRight,
   LayoutDashboard,
+  Receipt,
 } from 'lucide-react';
 
 export default function TransactionsPage() {
@@ -208,97 +206,118 @@ export default function TransactionsPage() {
 
   return (
     <AppLayout>
-      <div className={`space-y-4 pb-2 transition-all duration-200 ${isExiting ? 'opacity-0 translate-y-4' : 'animate-page-enter-down'}`}>
+      <div className={`space-y-6 pb-2 transition-all duration-200 ${isExiting ? 'opacity-0 translate-y-4' : 'animate-page-enter-down'}`}>
         
         {/* 1. Page Header & Export Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#1C1C1E] tracking-tight">
-              Transactions
-            </h1>
-            <p className="text-xs text-[#737373] mt-0.5">
-              {filteredTransactions.length} {filteredTransactions.length === 1 ? 'record' : 'records'} in ledger
-            </p>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                Transactions
+              </h1>
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200/80">
+                {filteredTransactions.length} {filteredTransactions.length === 1 ? 'record' : 'records'}
+              </span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Export Actions Toolbar */}
+          <div className="flex items-center gap-2.5">
             <button
               onClick={handleDownloadCSV}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-[#EAEAEA] text-xs font-medium text-[#1C1C1E] hover:bg-[#FAFAF8] transition shadow-xs cursor-pointer"
-              title="Download CSV"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200/80 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+              title="Download CSV Spreadsheet"
             >
-              <FileSpreadsheet size={14} className="text-[#238B6F]" />
+              <FileSpreadsheet size={15} className="text-emerald-600" />
               <span>Export CSV</span>
             </button>
 
             <button
               onClick={handleDownloadPDF}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-[#EAEAEA] text-xs font-medium text-[#1C1C1E] hover:bg-[#FAFAF8] transition shadow-xs cursor-pointer"
-              title="Download PDF"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200/80 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+              title="Download PDF Financial Statement"
             >
-              <FileText size={14} className="text-[#D95763]" />
+              <FileText size={15} className="text-rose-600" />
               <span>Export PDF</span>
             </button>
           </div>
         </div>
 
         {/* 2. Compact Financial Summary Ribbon */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white rounded-[20px] p-5 border border-[#EAEAEA] flex flex-col justify-between">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          {/* Income Summary */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-[#737373]">Total income</span>
-              <span className="w-2 h-2 rounded-full bg-[#238B6F]" />
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Income</span>
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+                <TrendingUp size={16} />
+              </div>
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-[#1C1C1E] mt-2 tabular-nums">
+            <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-2 tabular-nums tracking-tight">
               +{formatINR(filteredTotals.income)}
             </div>
           </div>
 
-          <div className="bg-white rounded-[20px] p-5 border border-[#EAEAEA] flex flex-col justify-between">
+          {/* Expense Summary */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-[#737373]">Total expense</span>
-              <span className="w-2 h-2 rounded-full bg-[#D95763]" />
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Expenses</span>
+              <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100">
+                <ArrowUpDown size={16} />
+              </div>
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-[#1C1C1E] mt-2 tabular-nums">
+            <div className="text-2xl sm:text-3xl font-extrabold text-rose-600 mt-2 tabular-nums tracking-tight">
               −{formatINR(filteredTotals.expenses)}
             </div>
           </div>
 
-          <div className="bg-white rounded-[20px] p-5 border border-[#EAEAEA] flex flex-col justify-between">
+          {/* Net Balance */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-[#737373]">Balance amount</span>
-              <span className="w-2 h-2 rounded-full bg-[#18212F]" />
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Available Balance</span>
+              <div className="w-8 h-8 rounded-lg bg-teal-50 text-primary flex items-center justify-center border border-teal-100">
+                <Tag size={16} />
+              </div>
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-[#18212F] mt-2 tabular-nums">
+            <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2 tabular-nums tracking-tight">
               {formatINR(filteredTotals.balance)}
             </div>
           </div>
         </div>
 
-        {/* 3. Streamlined Filter Bar */}
-        <div className="bg-white rounded-[20px] p-4 border border-[#EAEAEA] space-y-3">
+        {/* 3. Streamlined Filter Toolbar */}
+        <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-card space-y-3">
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
             {/* Search Input */}
             <div className="relative flex-1">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#737373]" />
+              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               <input
                 type="text"
-                placeholder="Search transactions..."
+                placeholder="Search transactions by description, category, or amount..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-[#FAFAF8] border border-[#EAEAEA] rounded-lg text-xs sm:text-sm text-[#1C1C1E] placeholder-[#737373] focus:outline-none focus:border-[#18212F] focus:bg-white transition"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary focus:bg-white transition"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 font-medium"
+                >
+                  Clear
+                </button>
+              )}
             </div>
 
             {/* Segmented Type Filter */}
-            <div className="flex items-center gap-1 p-1 bg-[#F0F0EE] rounded-lg shrink-0">
+            <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200/60 shrink-0">
               <button
                 type="button"
                 onClick={() => setTypeFilter('all')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   typeFilter === 'all'
-                    ? 'bg-[#18212F] text-white shadow-xs'
-                    : 'text-[#737373] hover:text-[#1C1C1E]'
+                    ? 'bg-white text-slate-900 shadow-xs border border-slate-200/60'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
                 }`}
               >
                 All
@@ -306,10 +325,10 @@ export default function TransactionsPage() {
               <button
                 type="button"
                 onClick={() => setTypeFilter('income')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   typeFilter === 'income'
-                    ? 'bg-[#238B6F] text-white shadow-xs'
-                    : 'text-[#737373] hover:text-[#1C1C1E]'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
                 }`}
               >
                 Income
@@ -317,10 +336,10 @@ export default function TransactionsPage() {
               <button
                 type="button"
                 onClick={() => setTypeFilter('expense')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   typeFilter === 'expense'
-                    ? 'bg-[#D95763] text-white shadow-xs'
-                    : 'text-[#737373] hover:text-[#1C1C1E]'
+                    ? 'bg-rose-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
                 }`}
               >
                 Expense
@@ -331,12 +350,12 @@ export default function TransactionsPage() {
             <div className="w-full md:w-48 shrink-0">
               <FluidDropdown
                 categories={[
-                  { id: 'all', label: 'All Categories', icon: Tag, color: '#18212F' },
+                  { id: 'all', label: 'All Categories', icon: Tag, color: '#0F766E' },
                   ...allCategories.map((c) => ({
                     id: c,
                     label: c,
                     icon: c === 'Alumni Contribution' ? GraduationCap : c === 'Investment' ? TrendingUp : c === 'Printing' ? Printer : c === 'Offering' ? Gift : c === 'Vessel Rent' ? Building : c === 'Utilities' ? Zap : c === 'Sales' ? ShoppingBag : c === 'Donation' ? Sparkles : Tag,
-                    color: '#18212F',
+                    color: '#0F766E',
                   })),
                 ]}
                 selectedId={categoryFilter}
@@ -348,9 +367,9 @@ export default function TransactionsPage() {
             <div className="w-full md:w-44 shrink-0">
               <FluidDropdown
                 categories={[
-                  { id: 'all', label: 'All Time Range', icon: Calendar, color: '#18212F' },
-                  { id: 'this_month', label: 'This Month', icon: Clock, color: '#238B6F' },
-                  { id: 'last_month', label: 'Last Month', icon: History, color: '#3B82F6' },
+                  { id: 'all', label: 'All Time Range', icon: Calendar, color: '#0F766E' },
+                  { id: 'this_month', label: 'This Month', icon: Clock, color: '#059669' },
+                  { id: 'last_month', label: 'Last Month', icon: History, color: '#2563EB' },
                 ]}
                 selectedId={dateFilter}
                 onSelect={(cat) => setDateFilter(cat.id)}
@@ -360,33 +379,50 @@ export default function TransactionsPage() {
         </div>
 
         {/* 4. Streamlined Minimal Transactions Table */}
-        <div className="bg-white rounded-[20px] border border-[#EAEAEA] overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#FAFAF8] border-b border-[#EAEAEA] text-[11px] font-semibold text-[#737373]">
+                <tr className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   <th
-                    className="py-3.5 px-5 cursor-pointer hover:text-[#1C1C1E] select-none transition"
+                    className="py-3.5 px-5 cursor-pointer hover:text-slate-900 select-none transition"
                     onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
                   >
                     <div className="flex items-center gap-1.5">
                       <span>Date</span>
-                      <ArrowUpDown size={11} />
+                      <ArrowUpDown size={12} className="text-slate-400" />
                     </div>
                   </th>
-                  <th className="py-3.5 px-4">Transaction</th>
-                  <th className="py-3.5 px-5 text-right">Amount</th>
+                  <th className="py-3.5 px-4">Transaction Details</th>
+                  <th className="py-3.5 px-5 text-right">Amount (INR ₹)</th>
                   <th className="py-3.5 px-4 text-right w-16">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#EAEAEA] text-xs sm:text-sm">
+              <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
                 {filteredTransactions.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="py-16 text-center text-[#737373]">
-                      <p className="font-semibold text-[#1C1C1E] text-sm">No transactions match</p>
-                      <p className="text-xs text-[#737373] mt-1">
-                        Try adjusting your search terms or filters
+                    <td colSpan={4} className="py-16 text-center text-slate-500">
+                      <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                        <Receipt size={22} />
+                      </div>
+                      <p className="font-bold text-slate-800 text-sm">No transactions found</p>
+                      <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                        No financial records match your current filters or search query.
                       </p>
+                      {(searchQuery || typeFilter !== 'all' || categoryFilter !== 'all' || dateFilter !== 'all') && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSearchQuery('');
+                            setTypeFilter('all');
+                            setCategoryFilter('all');
+                            setDateFilter('all');
+                          }}
+                          className="mt-3 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition cursor-pointer"
+                        >
+                          Reset all filters
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ) : (
@@ -396,11 +432,13 @@ export default function TransactionsPage() {
                     return (
                       <tr
                         key={tx.id}
-                        className="hover:bg-[#FAFAF8] transition-colors"
+                        className="hover:bg-slate-50/70 transition-colors group"
                       >
                         {/* 1. Date */}
-                        <td className="py-4 px-5 text-xs text-[#737373] font-medium whitespace-nowrap align-middle">
-                          {formatDate(tx.date)}
+                        <td className="py-4 px-5 text-xs text-slate-500 font-medium whitespace-nowrap align-middle">
+                          <span className="bg-slate-100 border border-slate-200/60 px-2 py-1 rounded-md text-slate-700 font-medium">
+                            {formatDate(tx.date)}
+                          </span>
                         </td>
 
                         {/* 2. Combined Transaction Column */}
@@ -408,23 +446,29 @@ export default function TransactionsPage() {
                           <div className="flex items-center gap-3">
                             <span
                               className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                                isIncome ? 'bg-[#238B6F]' : 'bg-[#D95763]'
+                                isIncome ? 'bg-emerald-500' : 'bg-rose-500'
                               }`}
                             />
                             <div className="min-w-0">
-                              <p className="font-semibold text-[#1C1C1E] text-xs sm:text-sm truncate">
+                              <p className="font-semibold text-slate-900 text-xs sm:text-sm truncate group-hover:text-primary transition-colors">
                                 {tx.description}
                               </p>
-                              <p className="text-[11px] text-[#737373] mt-0.5">
-                                {isIncome ? 'Income' : 'Expense'} · {tx.category}
-                              </p>
+                              <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mt-0.5">
+                                <span className={`font-semibold ${isIncome ? 'text-emerald-700' : 'text-rose-700'}`}>
+                                  {isIncome ? 'Income' : 'Expense'}
+                                </span>
+                                <span>·</span>
+                                <span className="bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded font-medium">
+                                  {tx.category}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </td>
 
                         {/* 3. Amount */}
-                        <td className="py-4 px-5 text-right font-semibold whitespace-nowrap tabular-nums align-middle">
-                          <span className={isIncome ? 'text-[#238B6F]' : 'text-[#D95763]'}>
+                        <td className="py-4 px-5 text-right font-bold whitespace-nowrap tabular-nums align-middle">
+                          <span className={isIncome ? 'text-emerald-600' : 'text-rose-600'}>
                             {isIncome ? `+ ${formatINR(tx.amount)}` : `− ${formatINR(tx.amount)}`}
                           </span>
                         </td>
@@ -432,7 +476,9 @@ export default function TransactionsPage() {
                         {/* 4. Actions (Overflow Popover Menu) */}
                         <td className="py-4 px-4 text-right whitespace-nowrap align-middle">
                           {!isAdmin ? (
-                            <span className="text-[11px] text-[#737373]">View only</span>
+                            <span className="text-[11px] font-medium text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                              View only
+                            </span>
                           ) : (
                             <Popover
                               open={openPopoverId === tx.id}
@@ -443,7 +489,7 @@ export default function TransactionsPage() {
                               <PopoverTrigger asChild>
                                 <button
                                   type="button"
-                                  className="p-1.5 rounded-lg text-[#737373] hover:text-[#1C1C1E] hover:bg-black/[0.04] transition cursor-pointer inline-flex items-center justify-center"
+                                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer inline-flex items-center justify-center"
                                   aria-label="Transaction options"
                                 >
                                   <MoreVertical size={16} />
@@ -452,7 +498,7 @@ export default function TransactionsPage() {
                               <PopoverContent
                                 align="end"
                                 sideOffset={4}
-                                className="w-32 p-1 bg-white rounded-xl shadow-xl border border-[#EAEAEA] text-left z-50 animate-fadeIn"
+                                className="w-32 p-1.5 bg-white rounded-xl shadow-dropdown border border-slate-200 text-left z-50 animate-fadeIn"
                               >
                                 <button
                                   type="button"
@@ -460,9 +506,9 @@ export default function TransactionsPage() {
                                     setOpenPopoverId(null);
                                     setEditingTx(tx);
                                   }}
-                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[#1C1C1E] hover:bg-[#FAFAF8] rounded-lg transition cursor-pointer"
+                                  className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 rounded-lg transition cursor-pointer"
                                 >
-                                  <Edit2 size={13} className="text-[#737373]" />
+                                  <Edit2 size={13} className="text-slate-400" />
                                   <span>Edit</span>
                                 </button>
                                 <button
@@ -471,7 +517,7 @@ export default function TransactionsPage() {
                                     setOpenPopoverId(null);
                                     setDeletingTx(tx);
                                   }}
-                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[#D95763] hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                                  className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
                                 >
                                   <Trash2 size={13} />
                                   <span>Delete</span>
@@ -488,16 +534,6 @@ export default function TransactionsPage() {
             </table>
           </div>
         </div>
-
-        {/* Scroll-driven Page Bridge to Dashboard */}
-        <ScrollPageBridge
-          targetRoute="/"
-          targetTitle="Continue to Dashboard"
-          targetSubtitle="Scroll to view your financial overview"
-          readyText="Dashboard Ready"
-          icon={LayoutDashboard}
-          onTransitionStart={() => setIsExiting(true)}
-        />
 
       </div>
 

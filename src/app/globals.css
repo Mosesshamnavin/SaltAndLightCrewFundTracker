@@ -3,17 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 28, 28, 30; /* #1C1C1E */
-  --background: #F9F9F6;
-  --income-emerald: #238B6F;
-  --expense-coral: #D95763;
-  --primary-dark: #0D1522;
-  --border-subtle: #ECE9E2;
+  --foreground-rgb: 15, 23, 42; /* #0F172A */
+  --background: #F8FAFC;
+  --income-emerald: #059669;
+  --expense-rose: #E11D48;
+  --primary-teal: #0F766E;
+  --border-subtle: #E2E8F0;
 }
 
 body {
-  color: #1C1C1E;
-  background-color: #F9F9F6;
+  color: #0F172A;
+  background-color: #F8FAFC;
   font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
@@ -24,8 +24,8 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-inter), 'Inter', sans-serif;
   font-weight: 600;
-  letter-spacing: -0.02em;
-  color: #1C1C1E;
+  letter-spacing: -0.025em;
+  color: #0F172A;
 }
 
 /* Numbers / Fund Values: Tabular Numerals for perfect alignment */

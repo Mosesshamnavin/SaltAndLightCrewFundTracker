@@ -192,9 +192,9 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isSubmitting || isLoading}
-            className="w-full h-11 mt-1 rounded-xl bg-[#238B6F] hover:bg-[#1e785f] active:scale-[0.99] text-[#FAFAF8] text-xs sm:text-sm font-semibold shadow-lg shadow-teal-950/30 hover:shadow-teal-950/50 transition-all duration-200 disabled:opacity-50 cursor-pointer flex items-center justify-center"
+            className="w-full h-11 mt-1 rounded-xl bg-primary hover:bg-primary-hover active:scale-[0.99] text-white text-xs sm:text-sm font-semibold shadow-md shadow-teal-950/40 transition-all duration-200 disabled:opacity-50 cursor-pointer flex items-center justify-center"
           >
-            {isSubmitting ? 'Signing In...' : 'Sign In'}
+            {isSubmitting ? 'Signing In...' : 'Sign In to Treasury'}
           </button>
         </form>
       </div>
