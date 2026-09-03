@@ -10,7 +10,7 @@ import {
   fetchAuditLogs,
   fetchSettings,
   updateSettingsRecord,
-  clearAllLocalFinancialData,
+  clearAllFinancialData,
   INITIAL_TRANSACTIONS,
 } from '@/lib/firebase/firestore';
 import {
@@ -118,7 +118,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({ c
   };
 
   const clearAllData = async () => {
-    clearAllLocalFinancialData();
+    await clearAllFinancialData();
     setTransactions([]);
     setAuditLogs([]);
   };

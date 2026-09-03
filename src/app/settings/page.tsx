@@ -19,7 +19,9 @@ import {
   Lock,
   IndianRupee,
   ShieldAlert,
+  Loader2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function SettingsPage() {
   const { settings, updateSettings, auditLogs, clearAllData } = useTransactions();
@@ -32,6 +34,7 @@ export default function SettingsPage() {
   // User Management State
   const [usersList, setUsersList] = useState<UserProfile[]>([]);
   const [activeTab, setActiveTab] = useState<'church' | 'users' | 'audit'>('church');
+  const [isClearing, setIsClearing] = useState(false);
 
   useEffect(() => {
     if (settings?.churchName) {
@@ -214,19 +217,36 @@ export default function SettingsPage() {
                     <span>Danger Zone: Reset Data</span>
                   </div>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Permanently clear all local transactions and start with a completely fresh. All existing income and expense rows will be removed.
+                    Permanently clear all transactions from the cloud database and start completely fresh. All existing income and expense rows will be removed.
                   </p>
                   <button
                     type="button"
+                    disabled={isClearing}
                     onClick={async () => {
-                      if (window.confirm('Are you sure you want to clear all transactions and audit logs? This cannot be undone.')) {
-                        await clearAllData();
-                        alert('Ledger cleared successfully! Current balance is ₹0.');
+                      if (isClearing) return;
+                      if (window.confirm('Are you sure you want to permanently clear all transactions and reset the ledger? This will delete all records from the database and cannot be undone.')) {
+                        try {
+                          setIsClearing(true);
+                          await clearAllData();
+                          toast.success('Ledger cleared successfully! Current balance is ₹0.');
+                        } catch (err) {
+                          console.error('Failed to clear data:', err);
+                          toast.error('Failed to clear all records from cloud database. Please try again.');
+                        } finally {
+                          setIsClearing(false);
+                        }
                       }
                     }}
-                    className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-semibold transition cursor-pointer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-semibold transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Clear All Transaction
+                    {isClearing ? (
+                      <>
+                        <Loader2 size={14} className="animate-spin" />
+                        <span>Clearing database...</span>
+                      </>
+                    ) : (
+                      <span>Clear All Transaction</span>
+                    )}
                   </button>
                 </div>
               )}

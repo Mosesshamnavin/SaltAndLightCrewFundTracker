@@ -36,8 +36,8 @@ service cloud.firestore {
     // Audit logs collection
     match /audit_logs/{logId} {
       allow read: if isAuthenticated();
-      allow create: if isAdmin();
-      allow update, delete: if false;
+      allow create, delete: if isAdmin();
+      allow update: if false;
     }
     
     // Settings collection

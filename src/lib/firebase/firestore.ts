@@ -7,6 +7,7 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  writeBatch,
   query,
   where,
   orderBy,
@@ -62,7 +63,53 @@ export function clearAllLocalFinancialData(): void {
     localStorage.setItem(STORAGE_KEY_TX, JSON.stringify([]));
     localStorage.setItem(STORAGE_KEY_AUDIT, JSON.stringify([]));
   } catch (e) {
-    console.error('Error clearing data:', e);
+    console.error('Error clearing local data:', e);
+  }
+}
+
+export async function clearAllFinancialData(): Promise<void> {
+  // 1. Clear local storage immediately
+  clearAllLocalFinancialData();
+
+  // 2. Clear Firestore transactions
+  if (isFirebaseConfigured && db) {
+    try {
+      const txSnapshot = await getDocs(collection(db, 'transactions'));
+      if (!txSnapshot.empty) {
+        const docs = txSnapshot.docs;
+        for (let i = 0; i < docs.length; i += 400) {
+          const batch = writeBatch(db);
+          const chunk = docs.slice(i, i + 400);
+          chunk.forEach((d) => batch.delete(d.ref));
+          await batch.commit();
+        }
+      }
+    } catch (e) {
+      console.warn('Batch deletion of transactions failed, attempting individual deleteDoc:', e);
+      try {
+        const txSnapshot = await getDocs(collection(db, 'transactions'));
+        await Promise.all(txSnapshot.docs.map((d) => deleteDoc(d.ref)));
+      } catch (err) {
+        console.error('Failed to delete transactions from Firestore:', err);
+        throw err;
+      }
+    }
+
+    // 3. Clear Firestore audit logs if permitted
+    try {
+      const auditSnapshot = await getDocs(collection(db, 'audit_logs'));
+      if (!auditSnapshot.empty) {
+        const docs = auditSnapshot.docs;
+        for (let i = 0; i < docs.length; i += 400) {
+          const batch = writeBatch(db);
+          const chunk = docs.slice(i, i + 400);
+          chunk.forEach((d) => batch.delete(d.ref));
+          await batch.commit();
+        }
+      }
+    } catch (auditErr) {
+      console.warn('Audit logs could not be deleted from Firestore (may be restricted by security rules):', auditErr);
+    }
   }
 }
 
