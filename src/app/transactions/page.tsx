@@ -11,6 +11,7 @@ import { TransactionModal } from '@/components/transactions/TransactionModal';
 import { DeleteConfirmModal } from '@/components/transactions/DeleteConfirmModal';
 import { exportToCSV, exportToPDF } from '@/lib/exportUtils';
 import { FluidDropdown } from '@/components/ui/fluid-dropdown';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollPageBridge } from '@/components/layout/ScrollPageBridge';
 import { toast } from 'sonner';
 import {
@@ -60,25 +61,12 @@ export default function TransactionsPage() {
   const [customEndDate, setCustomEndDate] = useState('');
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
 
-  // Modals
+  // Modals & Action Menu
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [addType, setAddType] = useState<TransactionType>('income');
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
   const [deletingTx, setDeletingTx] = useState<Transaction | null>(null);
-
-  // Row Action Menu State
-  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setActiveMenuId(null);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
 
   // Distinct categories
   const allCategories = useMemo(() => {
@@ -372,7 +360,7 @@ export default function TransactionsPage() {
         </div>
 
         {/* 4. Streamlined Minimal Transactions Table */}
-        <div className="bg-white rounded-[20px] border border-[#EAEAEA] overflow-hidden" ref={menuRef}>
+        <div className="bg-white rounded-[20px] border border-[#EAEAEA] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -404,7 +392,6 @@ export default function TransactionsPage() {
                 ) : (
                   filteredTransactions.map((tx) => {
                     const isIncome = tx.type === 'income';
-                    const isMenuOpen = activeMenuId === tx.id;
 
                     return (
                       <tr
@@ -442,51 +429,55 @@ export default function TransactionsPage() {
                           </span>
                         </td>
 
-                        {/* 4. Actions (Overflow Menu) */}
-                        <td className="py-4 px-4 text-right whitespace-nowrap relative align-middle">
+                        {/* 4. Actions (Overflow Popover Menu) */}
+                        <td className="py-4 px-4 text-right whitespace-nowrap align-middle">
                           {!isAdmin ? (
                             <span className="text-[11px] text-[#737373]">View only</span>
                           ) : (
-                            <div className="relative inline-block text-left">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setActiveMenuId(isMenuOpen ? null : tx.id)
-                                }
-                                className="p-1.5 rounded-lg text-[#737373] hover:text-[#1C1C1E] hover:bg-black/[0.04] transition cursor-pointer"
-                                aria-label="Transaction options"
+                            <Popover
+                              open={openPopoverId === tx.id}
+                              onOpenChange={(isOpen) =>
+                                setOpenPopoverId(isOpen ? tx.id : null)
+                              }
+                            >
+                              <PopoverTrigger asChild>
+                                <button
+                                  type="button"
+                                  className="p-1.5 rounded-lg text-[#737373] hover:text-[#1C1C1E] hover:bg-black/[0.04] transition cursor-pointer inline-flex items-center justify-center"
+                                  aria-label="Transaction options"
+                                >
+                                  <MoreVertical size={16} />
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                align="end"
+                                sideOffset={4}
+                                className="w-32 p-1 bg-white rounded-xl shadow-xl border border-[#EAEAEA] text-left z-50 animate-fadeIn"
                               >
-                                <MoreVertical size={16} />
-                              </button>
-
-                              {/* Minimal Overflow Actions Dropdown */}
-                              {isMenuOpen && (
-                                <div className="absolute right-0 mt-1 w-32 bg-white rounded-xl shadow-lg border border-[#EAEAEA] py-1 z-30 animate-fadeIn text-left">
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setActiveMenuId(null);
-                                      setEditingTx(tx);
-                                    }}
-                                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[#1C1C1E] hover:bg-[#FAFAF8] transition cursor-pointer"
-                                  >
-                                    <Edit2 size={13} className="text-[#737373]" />
-                                    <span>Edit</span>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setActiveMenuId(null);
-                                      setDeletingTx(tx);
-                                    }}
-                                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[#D95763] hover:bg-rose-50 transition cursor-pointer"
-                                  >
-                                    <Trash2 size={13} />
-                                    <span>Delete</span>
-                                  </button>
-                                </div>
-                              )}
-                            </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setOpenPopoverId(null);
+                                    setEditingTx(tx);
+                                  }}
+                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[#1C1C1E] hover:bg-[#FAFAF8] rounded-lg transition cursor-pointer"
+                                >
+                                  <Edit2 size={13} className="text-[#737373]" />
+                                  <span>Edit</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setOpenPopoverId(null);
+                                    setDeletingTx(tx);
+                                  }}
+                                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[#D95763] hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                                >
+                                  <Trash2 size={13} />
+                                  <span>Delete</span>
+                                </button>
+                              </PopoverContent>
+                            </Popover>
                           )}
                         </td>
                       </tr>

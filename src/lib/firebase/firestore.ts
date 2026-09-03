@@ -44,112 +44,7 @@ export const INITIAL_SETTINGS: ChurchSettings = {
   updatedBy: 'Moses Sham Navin',
 };
 
-export const INITIAL_TRANSACTIONS: Transaction[] = [
-  {
-    id: 'tx-seed-1',
-    type: 'expense',
-    category: 'Utilities',
-    amount: 258,
-    description: 'paper cups',
-    date: '2026-09-01',
-    createdBy: 'user-admin-1',
-    createdByName: 'Moses Sham Navin',
-    createdAt: '2026-09-01T10:00:00.000Z',
-    updatedAt: '2026-09-01T10:00:00.000Z',
-    isDeleted: false,
-  },
-  {
-    id: 'tx-seed-2',
-    type: 'income',
-    category: 'Sales',
-    amount: 5450,
-    description: 'last sun sale',
-    date: '2026-09-01',
-    createdBy: 'user-admin-1',
-    createdByName: 'Moses Sham Navin',
-    createdAt: '2026-09-01T10:05:00.000Z',
-    updatedAt: '2026-09-01T10:05:00.000Z',
-    isDeleted: false,
-  },
-  {
-    id: 'tx-seed-3',
-    type: 'income',
-    category: 'Other',
-    amount: 12,
-    description: 'remaing money',
-    date: '2026-09-01',
-    createdBy: 'user-admin-1',
-    createdByName: 'Moses Sham Navin',
-    createdAt: '2026-09-01T10:10:00.000Z',
-    updatedAt: '2026-09-01T10:10:00.000Z',
-    isDeleted: false,
-  },
-  {
-    id: 'tx-seed-4',
-    type: 'expense',
-    category: 'Product Purchase',
-    amount: 3050,
-    description: 'same as last sun',
-    date: '2026-09-01',
-    createdBy: 'user-admin-1',
-    createdByName: 'Moses Sham Navin',
-    createdAt: '2026-09-01T10:15:00.000Z',
-    updatedAt: '2026-09-01T10:15:00.000Z',
-    isDeleted: false,
-  },
-  {
-    id: 'tx-seed-5',
-    type: 'income',
-    category: 'Alumni Contribution',
-    amount: 1000,
-    description: 'herber anna',
-    date: '2026-09-01',
-    createdBy: 'user-admin-1',
-    createdByName: 'Moses Sham Navin',
-    createdAt: '2026-09-01T10:20:00.000Z',
-    updatedAt: '2026-09-01T10:20:00.000Z',
-    isDeleted: false,
-  },
-  {
-    id: 'tx-seed-6',
-    type: 'income',
-    category: 'Sales',
-    amount: 3950,
-    description: 'sales on last sun',
-    date: '2026-09-01',
-    createdBy: 'user-admin-1',
-    createdByName: 'Moses Sham Navin',
-    createdAt: '2026-09-01T10:25:00.000Z',
-    updatedAt: '2026-09-01T10:25:00.000Z',
-    isDeleted: false,
-  },
-  {
-    id: 'tx-seed-7',
-    type: 'expense',
-    category: 'Product Purchase',
-    amount: 2670,
-    description: 'palarasam nongu pall',
-    date: '2026-09-01',
-    createdBy: 'user-admin-1',
-    createdByName: 'Moses Sham Navin',
-    createdAt: '2026-09-01T10:30:00.000Z',
-    updatedAt: '2026-09-01T10:30:00.000Z',
-    isDeleted: false,
-  },
-  {
-    id: 'tx-seed-8',
-    type: 'income',
-    category: 'Alumni Contribution',
-    amount: 3000,
-    description: 'product purchase',
-    date: '2026-09-01',
-    createdBy: 'user-admin-1',
-    createdByName: 'Moses Sham Navin',
-    createdAt: '2026-09-01T10:35:00.000Z',
-    updatedAt: '2026-09-01T10:35:00.000Z',
-    isDeleted: false,
-  },
-];
+export const INITIAL_TRANSACTIONS: Transaction[] = [];
 
 export const INITIAL_AUDIT_LOGS: AuditLog[] = [];
 
@@ -198,31 +93,19 @@ export async function fetchTransactions(): Promise<Transaction[]> {
   if (isFirebaseConfigured && db) {
     try {
       const snapshot = await getDocs(collection(db, 'transactions'));
-      if (!snapshot.empty) {
-        const list = snapshot.docs
-          .map((docSnap) => {
-            const data = docSnap.data();
-            return {
-              ...data,
-              id: docSnap.id,
-            } as Transaction;
-          })
-          .filter((tx) => !tx.isDeleted);
+      const list = snapshot.docs
+        .map((docSnap) => {
+          const data = docSnap.data();
+          return {
+            ...data,
+            id: docSnap.id,
+          } as Transaction;
+        })
+        .filter((tx) => !tx.isDeleted);
 
-        list.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
-        setLocalData(STORAGE_KEY_TX, list);
-        return list;
-      } else if (INITIAL_TRANSACTIONS.length > 0) {
-        for (const tx of INITIAL_TRANSACTIONS) {
-          try {
-            await setDoc(doc(db, 'transactions', tx.id), tx);
-          } catch (err) {
-            console.warn('Initial seed error:', err);
-          }
-        }
-        setLocalData(STORAGE_KEY_TX, INITIAL_TRANSACTIONS);
-        return INITIAL_TRANSACTIONS;
-      }
+      list.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+      setLocalData(STORAGE_KEY_TX, list);
+      return list;
     } catch (e) {
       console.warn('Firestore fetch error, falling back to local dataset:', e);
     }
@@ -230,11 +113,7 @@ export async function fetchTransactions(): Promise<Transaction[]> {
 
   // Fallback to local storage
   const localList = getLocalData<Transaction[]>(STORAGE_KEY_TX, []);
-  if (localList && localList.length > 0) {
-    return localList.filter((t) => !t.isDeleted);
-  }
-  setLocalData(STORAGE_KEY_TX, INITIAL_TRANSACTIONS);
-  return INITIAL_TRANSACTIONS;
+  return localList.filter((t) => !t.isDeleted);
 }
 
 export async function createTransactionRecord(
@@ -253,7 +132,7 @@ export async function createTransactionRecord(
   };
 
   // 1. Update local storage
-  const list = getLocalData<Transaction[]>(STORAGE_KEY_TX, INITIAL_TRANSACTIONS);
+  const list = getLocalData<Transaction[]>(STORAGE_KEY_TX, []);
   const updatedList = [newTx, ...list.filter((t) => t.id !== newTx.id)];
   setLocalData(STORAGE_KEY_TX, updatedList);
 
@@ -289,7 +168,7 @@ export async function updateTransactionRecord(
   currentUser: { id: string; name: string }
 ): Promise<Transaction | null> {
   const now = new Date().toISOString();
-  const list = getLocalData<Transaction[]>(STORAGE_KEY_TX, INITIAL_TRANSACTIONS);
+  const list = getLocalData<Transaction[]>(STORAGE_KEY_TX, []);
   const existingIdx = list.findIndex((t) => t.id === id);
   const prevData = existingIdx >= 0 ? { ...list[existingIdx] } : null;
 
@@ -339,7 +218,7 @@ export async function softDeleteTransactionRecord(
   id: string,
   currentUser: { id: string; name: string }
 ): Promise<boolean> {
-  const list = getLocalData<Transaction[]>(STORAGE_KEY_TX, INITIAL_TRANSACTIONS);
+  const list = getLocalData<Transaction[]>(STORAGE_KEY_TX, []);
   const existingIdx = list.findIndex((t) => t.id === id);
   const prevData = existingIdx >= 0 ? { ...list[existingIdx] } : null;
 
